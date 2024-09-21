@@ -1,4 +1,4 @@
-﻿using DataLayer.Models;
+﻿using AuthService.Data.Models;
 using System.Linq.Expressions;
 
 namespace AuthService.Interfaces

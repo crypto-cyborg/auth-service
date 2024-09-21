@@ -1,11 +1,11 @@
 using AuthService.Data;
+using AuthService.Data.Contexts;
 using AuthService.Extensions;
 using AuthService.Infrastructure;
 using AuthService.Infrastructure.Repositories;
 using AuthService.Interfaces;
 using AuthService.Services;
 using AuthService.Validators;
-using DataLayer.Contexts;
 using FluentValidation;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +38,7 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();
 
-builder.Services.AddDbContext<AcademyContext>(opts =>
+builder.Services.AddDbContext<AuthContext>(opts =>
 {
     if (builder.Environment.IsDevelopment())
     {
@@ -47,7 +47,7 @@ builder.Services.AddDbContext<AcademyContext>(opts =>
     }
     else
     {
-        opts.UseSqlServer(builder.Configuration.GetConnectionString("Local"));
+        opts.UseNpgsql(builder.Configuration.GetConnectionString("Local"));
     }
 });
 

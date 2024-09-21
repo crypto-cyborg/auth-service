@@ -1,4 +1,4 @@
-﻿using DataLayer.Models;
+﻿using AuthService.Data.Models;
 using System.Security.Claims;
 
 namespace AuthService.Interfaces

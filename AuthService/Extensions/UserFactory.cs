@@ -1,4 +1,4 @@
-﻿using DataLayer.Models;
+﻿using AuthService.Data.Models;
 
 namespace AuthService.Extensions
 {
@@ -14,8 +14,9 @@ namespace AuthService.Extensions
                 Username = username,
                 PasswordHash = passwordHash,
                 Email = email,
+                IsEmailConfirmed = false,
                 FirstName = name,
-                LastName = surname
+                LastName = surname,
             };
         }
     }

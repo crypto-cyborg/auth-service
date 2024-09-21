@@ -1,6 +1,6 @@
-﻿using AuthService.Interfaces;
-using DataLayer.Contexts;
-using DataLayer.Models;
+﻿using AuthService.Data.Contexts;
+using AuthService.Data.Models;
+using AuthService.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -8,9 +8,9 @@ namespace AuthService.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly AcademyContext _context;
+        private readonly AuthContext _context;
 
-        public UserRepository(AcademyContext context)
+        public UserRepository(AuthContext context)
         {
             _context = context;
         }

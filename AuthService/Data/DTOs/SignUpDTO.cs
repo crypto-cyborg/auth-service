@@ -1,5 +1,4 @@
-﻿using DataLayer.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AuthService.Data.DTOs
 {

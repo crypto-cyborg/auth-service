@@ -1,10 +1,8 @@
 ﻿using AuthService.Data;
 using AuthService.Data.DTOs;
+using AuthService.Data.Models;
 using AuthService.Extensions;
 using AuthService.Interfaces;
-using DataLayer.Models;
-using System.Net;
-using System.Net.Mail;
 
 namespace AuthService.Services
 {

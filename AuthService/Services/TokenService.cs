@@ -1,11 +1,10 @@
 ﻿using AuthService.Data;
+using AuthService.Data.Models;
 using AuthService.Interfaces;
-using DataLayer.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace AuthService.Services
@@ -23,10 +22,8 @@ namespace AuthService.Services
         {
             Claim[] claims =
             [
-                new("userId",
-                user.Id.ToString()),
-                new(ClaimTypes.Role,
-                user.Role.ToString())
+                new("userId", user.Id.ToString()),
+                new(ClaimTypes.Role, string.Join(",", user.UserRoles))
             ];
 
             var signingCredentials = new SigningCredentials(
