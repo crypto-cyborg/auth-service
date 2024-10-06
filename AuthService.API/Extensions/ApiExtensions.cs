@@ -1,4 +1,4 @@
-﻿using AuthService.API.Data.Dtos;
+﻿using AuthService.Persistence.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;

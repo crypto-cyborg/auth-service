@@ -1,14 +1,14 @@
-using AuthService.API.Data;
-using AuthService.API.Data.Contexts;
 using AuthService.API.Extensions;
-using AuthService.API.Infrastructure;
-using AuthService.API.Infrastructure.Repositories;
-using AuthService.API.Interfaces;
-using AuthService.API.Services;
-using AuthService.API.Validators;
+using AuthService.Application.Infrastructure;
+using AuthService.Application.Infrastructure.Interfaces;
+using AuthService.Application.Interfaces;
+using AuthService.Application.Services;
+using AuthService.Application.Validators;
+using AuthService.Persistence.Data;
+using AuthService.Persistence.Repositories;
+using AuthService.Persistence.Repositories.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.EntityFrameworkCore;
 
 Console.WriteLine("--> Application started");
 
@@ -37,19 +37,6 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();
-
-builder.Services.AddDbContext<AuthContext>(opts =>
-{
-    if (builder.Environment.IsDevelopment())
-    {
-        Console.WriteLine("--> Using in-memory db");
-        opts.UseInMemoryDatabase("AuthInMemo");
-    }
-    else
-    {
-        opts.UseNpgsql(builder.Configuration.GetConnectionString("Local"));
-    }
-});
 
 var app = builder.Build();
 

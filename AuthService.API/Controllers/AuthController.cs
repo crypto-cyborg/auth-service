@@ -1,7 +1,6 @@
-﻿using AuthService.API.Data;
-using AuthService.API.Data.DTOs;
-using AuthService.API.Interfaces;
-using AuthService.API.Services;
+﻿using AuthService.Application.Services;
+using AuthService.Persistence.Data.Dtos;
+using AuthService.Persistence.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +12,7 @@ namespace AuthService.API.Controllers
         private readonly UserService _userService;
         private readonly IUserRepository _userRepository;
 
-        public AuthController(UserService userService, ITokenService tokenService, IUserRepository userRepository)
+        public AuthController(UserService userService, IUserRepository userRepository)
         {
             _userService = userService;
             _userRepository = userRepository;

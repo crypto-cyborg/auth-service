@@ -1,5 +1,4 @@
-﻿
-using AuthService.Data.Models;
+﻿using AuthService.Core.Models;
 
 namespace AuthService.API.Extensions
 {

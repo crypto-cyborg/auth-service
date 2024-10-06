@@ -1,4 +1,5 @@
-﻿using AuthService.API.Interfaces;
+﻿using AuthService.Application.Interfaces;
+using AuthService.Persistence.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers
@@ -27,10 +28,10 @@ namespace AuthService.API.Controllers
                 return NotFound("Token is expired or does not exist");
             }
 
-            var user = _userRepository.Filter(u => u.Id.ToString() == data).First();
+            var user = (await _userRepository.Get(u => u.Id.ToString() == data)).First();
             user.IsEmailConfirmed = true;
 
-            await _userRepository.SaveAsync();
+            //await _userRepository.SaveAsync();
 
             Console.WriteLine($"--> Verified user {user.Username}");
 

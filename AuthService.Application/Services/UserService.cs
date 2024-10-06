@@ -4,6 +4,7 @@ using AuthService.Core.Models;
 using AuthService.Persistence.Data;
 using AuthService.Persistence.Data.Dtos;
 using AuthService.Persistence.Extensions;
+using AuthService.Persistence.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace AuthService.Application.Services
@@ -42,7 +43,7 @@ namespace AuthService.Application.Services
                 request.Username, passwordHash,
                 request.Email, request.Name, request.Surname);
 
-            await _userRepository.AddAsync(user);
+            await _userRepository.CreateAsync(user);
             //await SendVerification(user);
         }
 
@@ -87,7 +88,7 @@ namespace AuthService.Application.Services
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = refreshTokenExpires;
 
-            await _userRepository.SaveAsync();
+            //await _userRepository.SaveAsync();
 
             return (
                 new()
@@ -112,7 +113,7 @@ namespace AuthService.Application.Services
             var principal = await _tokenService.GetPrincipalFromExpiredToken(data.AccessToken);
 
             var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
-            var user = _userRepository.Filter(u => u.Id.ToString() == userId).First();
+            var user = (await _userRepository.Get(u => u.Id.ToString() == userId)).First();
 
             if (user is null ||
                 user.RefreshToken != data.RefreshToken ||
@@ -135,7 +136,7 @@ namespace AuthService.Application.Services
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = expiryTime;
 
-            await _userRepository.SaveAsync();
+            //await _userRepository.SaveAsync();
 
             return (
                 new()
