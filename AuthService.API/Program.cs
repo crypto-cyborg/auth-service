@@ -2,6 +2,7 @@ using AuthService.API.Extensions;
 using AuthService.Application.Infrastructure;
 using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
+using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using AuthService.Application.Validators;
 using AuthService.Persistence.Data;
@@ -32,8 +33,10 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<ICacheService, CacheService>();
+//builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+builder.Services.AddScoped<UserServiceClient>();    
 
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();

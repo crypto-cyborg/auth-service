@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
+using AuthService.Application.ServiceClients;
 using AuthService.Core.Models;
 using AuthService.Persistence.Data;
 using AuthService.Persistence.Data.Dtos;
@@ -15,23 +16,26 @@ namespace AuthService.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
-        private readonly ICacheService _cacheService;
+        //private readonly ICacheService _cacheService;
         private readonly IEmailSender _emailSender;
+        private readonly UserServiceClient _userServiceClient;
 
         public UserService(
             IPasswordHasher passwordHasher,
             IUserRepository userRepository,
             ITokenService tokenService,
             IConfiguration configuration,
-            ICacheService cacheService,
-            IEmailSender emailSender)
+            //ICacheService cacheService,
+            IEmailSender emailSender,
+            UserServiceClient userServiceClient)
         {
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
             _tokenService = tokenService;
             _configuration = configuration;
-            _cacheService = cacheService;
+            //_cacheService = cacheService;
             _emailSender = emailSender;
+            _userServiceClient = userServiceClient;
         }
 
         public async Task SignUp(SignUpDTO request)
@@ -51,7 +55,8 @@ namespace AuthService.Application.Services
             string username,
             string password)
         {
-            var user = await _userRepository.GetByUsernameAsync(username);
+            var userId = await _userServiceClient.GetUserId(username);
+            var user = await _userServiceClient.GetUser(userId);
 
             if (user == null)
             {
@@ -154,19 +159,19 @@ namespace AuthService.Application.Services
             );
         }
 
-        private async Task SendVerification(User user)
-        {
-            var verificationToken = _tokenService.GenerateRandomToken();
+        //private async Task SendVerification(User user)
+        //{
+        //    var verificationToken = _tokenService.GenerateRandomToken();
 
-            string subject = "Academy account confirmation";
-            string body = $"https://localhost:7171/verify?token={verificationToken}";
+        //    string subject = "Academy account confirmation";
+        //    string body = $"https://localhost:7171/verify?token={verificationToken}";
 
-            await _cacheService.Set<string>(
-                verificationToken,
-                user.Id.ToString(),
-                DateTime.UtcNow.AddMinutes(5));
+        //    await _cacheService.Set<string>(
+        //        verificationToken,
+        //        user.Id.ToString(),
+        //        DateTime.UtcNow.AddMinutes(5));
 
-            await _emailSender.SendAsync(user.Email, subject, body);
-        }
+        //    await _emailSender.SendAsync(user.Email, subject, body);
+        //}
     }
 }
