@@ -6,14 +6,12 @@ using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Core.Models;
 using AuthService.Persistence.Extensions;
-using AuthService.Persistence.Repositories.Interfaces;
 
 namespace AuthService.Application.Services
 {
     public class UserService
     {
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
         private readonly ICacheService _cacheService;
         private readonly IEmailSender _emailSender;
@@ -21,7 +19,6 @@ namespace AuthService.Application.Services
 
         public UserService(
             IPasswordHasher passwordHasher,
-            IUserRepository userRepository,
             ITokenService tokenService,
             ICacheService cacheService,
             IEmailSender emailSender,
@@ -29,7 +26,6 @@ namespace AuthService.Application.Services
         )
         {
             _passwordHasher = passwordHasher;
-            _userRepository = userRepository;
             _tokenService = tokenService;
             _cacheService = cacheService;
             _emailSender = emailSender;

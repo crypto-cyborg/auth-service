@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AuthService.API.Controllers
 {
     [ApiController]
-    [Route("api/auth/")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
@@ -42,7 +42,7 @@ namespace AuthService.API.Controllers
 
             var response = await _userService.SignUp(request);
 
-            return Ok(response);
+            return Created(nameof(SignUp), response);
         }
 
         [HttpPost("signin")]

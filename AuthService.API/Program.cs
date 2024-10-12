@@ -6,8 +6,6 @@ using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using AuthService.Application.Validators;
-using AuthService.Persistence.Repositories;
-using AuthService.Persistence.Repositories.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.CookiePolicy;
 
@@ -25,8 +23,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<UserService>();
 
