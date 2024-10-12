@@ -27,7 +27,8 @@ namespace AuthService.Application.Services
             IConfiguration configuration,
             ICacheService cacheService,
             IEmailSender emailSender,
-            UserServiceClient userServiceClient)
+            UserServiceClient userServiceClient
+        )
         {
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
@@ -40,8 +41,6 @@ namespace AuthService.Application.Services
 
         public async Task<User> SignUp(SignUpDTO request)
         {
-            string passwordHash = _passwordHasher.Generate(request.Password);
-
             var result = await _userServiceClient.CreateUser(request);
 
             //await SendVerification(user);
@@ -51,10 +50,10 @@ namespace AuthService.Application.Services
 
         public async Task<(TokenData? tokenData, Status status)> SignIn(
             string username,
-            string password)
+            string password
+        )
         {
-            var userId = await _userServiceClient.GetUserId(username);
-            var user = await _userServiceClient.GetUser(userId);
+            var user = await _userServiceClient.GetUser(username);
 
             if (user == null)
             {
@@ -64,7 +63,7 @@ namespace AuthService.Application.Services
                     {
                         Code = 404,
                         IsError = true,
-                        Message = "User not found"
+                        Message = "User not found",
                     }
                 );
             }
@@ -79,7 +78,7 @@ namespace AuthService.Application.Services
                     {
                         Code = 401,
                         IsError = true,
-                        Message = "Invalid username or password"
+                        Message = "Invalid username or password",
                     }
                 );
             }
@@ -109,7 +108,9 @@ namespace AuthService.Application.Services
             );
         }
 
-        public async Task<(TokenData? tokenData, Status status)> RefreshTokenAsync(TokenInfoDTO data)
+        public async Task<(TokenData? tokenData, Status status)> RefreshTokenAsync(
+            TokenInfoDTO data
+        )
         {
             ArgumentNullException.ThrowIfNull(data);
 
@@ -118,9 +119,11 @@ namespace AuthService.Application.Services
             var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
             var user = (await _userRepository.Get(u => u.Id.ToString() == userId)).First();
 
-            if (user is null ||
-                user.RefreshToken != data.RefreshToken ||
-                user.RefreshTokenExpiryTime < DateTime.Now)
+            if (
+                user is null
+                || user.RefreshToken != data.RefreshToken
+                || user.RefreshTokenExpiryTime < DateTime.Now
+            )
             {
                 return (
                     null,
@@ -129,7 +132,8 @@ namespace AuthService.Application.Services
                         Code = 400,
                         Message = "Cannot refresh token",
                         IsError = true,
-                    });
+                    }
+                );
             }
 
             var accessToken = await _tokenService.Generate(user);
@@ -146,13 +150,13 @@ namespace AuthService.Application.Services
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
-                    RefreshTokenExpired = expiryTime
+                    RefreshTokenExpired = expiryTime,
                 },
                 new()
                 {
                     Code = 200,
                     Message = "Refreshed successfully",
-                    IsError = false
+                    IsError = false,
                 }
             );
         }
@@ -167,7 +171,8 @@ namespace AuthService.Application.Services
             await _cacheService.Set<string>(
                 verificationToken,
                 user.Id.ToString(),
-                DateTime.UtcNow.AddMinutes(5));
+                DateTime.UtcNow.AddMinutes(5)
+            );
 
             await _emailSender.SendAsync(user.Email, subject, body);
         }

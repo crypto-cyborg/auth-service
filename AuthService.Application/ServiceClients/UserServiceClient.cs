@@ -1,11 +1,11 @@
 ﻿using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using AuthService.Application.Data.Dtos;
+using AuthService.Core.Exceptions;
 using AuthService.Core.Models;
+using AuthService.Persistence.Data.Dtos;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System.Text.Json;
-using AuthService.Persistence.Data.Dtos;
 
 namespace AuthService.Application.ServiceClients
 {
@@ -19,12 +19,13 @@ namespace AuthService.Application.ServiceClients
             _configuration = configuration;
             _httpClient = new()
             {
-                BaseAddress = new(_configuration.GetSection("Services")["UserService"])
+                BaseAddress = new(_configuration.GetSection("Services")["UserService"]),
             };
         }
 
-        public async Task<User> GetUser(Guid? id)
+        public async Task<User> GetUser(string username)
         {
+            var id = await GetUserId(username);
             var response = await _httpClient.GetAsync($"users/{id}");
 
             if (!response.IsSuccessStatusCode)
@@ -33,13 +34,17 @@ namespace AuthService.Application.ServiceClients
             }
 
             var dataStream = await response.Content.ReadAsStringAsync();
-            var user = JsonConvert.DeserializeObject<User>(dataStream)
-                ?? throw new Exception("Unable to serialize");
+            var user =
+                JsonConvert.DeserializeObject<User>(dataStream)
+                ?? throw new AuthServiceExceptions(
+                    $"Internal server error",
+                    AuthServiceExceptionTypes.SERIALIZATION_ERROR
+                );
 
             return user;
         }
 
-        public async Task<Guid?> GetUserId(string username)
+        private async Task<Guid?> GetUserId(string username)
         {
             var response = await _httpClient.GetAsync($"users/{username}/exists");
 
@@ -48,11 +53,14 @@ namespace AuthService.Application.ServiceClients
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Request failed with status code {response.StatusCode}. {nameof(GetUserId)}. Response: {errorContent}");
+                throw new Exception(
+                    $"Request failed with status code {response.StatusCode}. {nameof(GetUserId)}. Response: {errorContent}"
+                );
             }
 
             var dataStream = await response.Content.ReadAsStringAsync();
-            var data = JsonConvert.DeserializeObject<ExistsDto>(dataStream)
+            var data =
+                JsonConvert.DeserializeObject<ExistsDto>(dataStream)
                 ?? throw new Exception("Unable to serialize");
 
             if (!data.Found)
@@ -69,8 +77,12 @@ namespace AuthService.Application.ServiceClients
             var response = await _httpClient.PostAsync("users", body);
 
             var dataString = await response.Content.ReadAsStringAsync();
-            var data = JsonConvert.DeserializeObject<User>(dataString)
-                ?? throw new SerializationException("Cannot deserialize object");
+            var data =
+                JsonConvert.DeserializeObject<User>(dataString)
+                ?? throw new AuthServiceExceptions(
+                    $"Internal server error",
+                    AuthServiceExceptionTypes.DESEREALIZATION_ERROR
+                );
 
             return data;
         }
