@@ -16,7 +16,7 @@ namespace AuthService.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
-        //private readonly ICacheService _cacheService;
+        private readonly ICacheService _cacheService;
         private readonly IEmailSender _emailSender;
         private readonly UserServiceClient _userServiceClient;
 
@@ -25,7 +25,7 @@ namespace AuthService.Application.Services
             IUserRepository userRepository,
             ITokenService tokenService,
             IConfiguration configuration,
-            //ICacheService cacheService,
+            ICacheService cacheService,
             IEmailSender emailSender,
             UserServiceClient userServiceClient)
         {
@@ -33,22 +33,20 @@ namespace AuthService.Application.Services
             _userRepository = userRepository;
             _tokenService = tokenService;
             _configuration = configuration;
-            //_cacheService = cacheService;
+            _cacheService = cacheService;
             _emailSender = emailSender;
             _userServiceClient = userServiceClient;
         }
 
-        public async Task SignUp(SignUpDTO request)
+        public async Task<User> SignUp(SignUpDTO request)
         {
             string passwordHash = _passwordHasher.Generate(request.Password);
 
-            var user = UserFactory.Create(
-                Guid.NewGuid(),
-                request.Username, passwordHash,
-                request.Email, request.Name, request.Surname);
+            var result = await _userServiceClient.CreateUser(request);
 
-            await _userRepository.CreateAsync(user);
             //await SendVerification(user);
+
+            return result;
         }
 
         public async Task<(TokenData? tokenData, Status status)> SignIn(
@@ -159,19 +157,19 @@ namespace AuthService.Application.Services
             );
         }
 
-        //private async Task SendVerification(User user)
-        //{
-        //    var verificationToken = _tokenService.GenerateRandomToken();
+        private async Task SendVerification(User user)
+        {
+            var verificationToken = _tokenService.GenerateRandomToken();
 
-        //    string subject = "Academy account confirmation";
-        //    string body = $"https://localhost:7171/verify?token={verificationToken}";
+            string subject = "Academy account confirmation";
+            string body = $"https://localhost:7171/verify?token={verificationToken}";
 
-        //    await _cacheService.Set<string>(
-        //        verificationToken,
-        //        user.Id.ToString(),
-        //        DateTime.UtcNow.AddMinutes(5));
+            await _cacheService.Set<string>(
+                verificationToken,
+                user.Id.ToString(),
+                DateTime.UtcNow.AddMinutes(5));
 
-        //    await _emailSender.SendAsync(user.Email, subject, body);
-        //}
+            await _emailSender.SendAsync(user.Email, subject, body);
+        }
     }
 }

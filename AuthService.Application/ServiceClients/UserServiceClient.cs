@@ -1,8 +1,11 @@
-﻿using AuthService.Application.Data.Dtos;
+﻿using System.Net.Http.Json;
+using System.Runtime.Serialization;
+using AuthService.Application.Data.Dtos;
 using AuthService.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Text.Json;
+using AuthService.Persistence.Data.Dtos;
 
 namespace AuthService.Application.ServiceClients
 {
@@ -58,6 +61,18 @@ namespace AuthService.Application.ServiceClients
             }
 
             return data.Data;
+        }
+
+        public async Task<User> CreateUser(SignUpDTO request)
+        {
+            var body = JsonContent.Create(request);
+            var response = await _httpClient.PostAsync("users", body);
+
+            var dataString = await response.Content.ReadAsStringAsync();
+            var data = JsonConvert.DeserializeObject<User>(dataString)
+                ?? throw new SerializationException("Cannot deserialize object");
+
+            return data;
         }
     }
 }

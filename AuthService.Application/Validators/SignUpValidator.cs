@@ -25,11 +25,11 @@ namespace AuthService.Application.Validators
                 .Matches(RegexPatterns.Email)
                 .WithMessage("Email doesn't match the pattern");
 
-            RuleFor(x => x.Name)
+            RuleFor(x => x.FirstName)
                 .NotEmpty()
                 .WithMessage("Name is required");
 
-            RuleFor(x => x.Surname)
+            RuleFor(x => x.LastName)
                 .NotEmpty()
                 .WithMessage("Surname is required");
         }

@@ -1,21 +1,19 @@
 ﻿using AuthService.Application.Services;
 using AuthService.Persistence.Data.Dtos;
-using AuthService.Persistence.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers
 {
     [ApiController]
+    [Route("api/auth/")]
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
-        private readonly IUserRepository _userRepository;
 
-        public AuthController(UserService userService, IUserRepository userRepository)
+        public AuthController(UserService userService)
         {
             _userService = userService;
-            _userRepository = userRepository;
         }
 
         [HttpPost("RefreshToken")]
@@ -39,9 +37,9 @@ namespace AuthService.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _userService.SignUp(request);
+            var response = await _userService.SignUp(request);
 
-            return Ok();
+            return Ok(response);
         }
 
         [HttpPost("signin")]
@@ -66,6 +64,7 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("check")]
+        [Authorize]
         public IActionResult Check()
         {
             return Ok("Authorized");
