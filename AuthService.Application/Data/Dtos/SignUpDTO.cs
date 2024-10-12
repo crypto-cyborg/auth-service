@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AuthService.Persistence.Data.Dtos
+namespace AuthService.Application.Data.Dtos
 {
     public record SignUpDTO(
         [Required] string Username,

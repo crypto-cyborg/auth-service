@@ -1,4 +1,4 @@
-﻿namespace AuthService.Persistence.Data
+﻿namespace AuthService.Core.Models
 {
     public class Status
     {

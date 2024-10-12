@@ -1,4 +1,4 @@
-﻿namespace AuthService.Persistence.Data.Dtos
+﻿namespace AuthService.Application.Data.Dtos
 {
     public class TokenInfoDTO
     {

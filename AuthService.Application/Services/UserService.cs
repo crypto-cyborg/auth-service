@@ -1,12 +1,11 @@
-﻿using AuthService.Application.Infrastructure.Interfaces;
+﻿using AuthService.Application.Data;
+using AuthService.Application.Data.Dtos;
+using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Core.Models;
-using AuthService.Persistence.Data;
-using AuthService.Persistence.Data.Dtos;
 using AuthService.Persistence.Extensions;
 using AuthService.Persistence.Repositories.Interfaces;
-using Microsoft.Extensions.Configuration;
 
 namespace AuthService.Application.Services
 {
@@ -15,7 +14,6 @@ namespace AuthService.Application.Services
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
-        private readonly IConfiguration _configuration;
         private readonly ICacheService _cacheService;
         private readonly IEmailSender _emailSender;
         private readonly UserServiceClient _userServiceClient;
@@ -24,7 +22,6 @@ namespace AuthService.Application.Services
             IPasswordHasher passwordHasher,
             IUserRepository userRepository,
             ITokenService tokenService,
-            IConfiguration configuration,
             ICacheService cacheService,
             IEmailSender emailSender,
             UserServiceClient userServiceClient
@@ -33,7 +30,6 @@ namespace AuthService.Application.Services
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
             _tokenService = tokenService;
-            _configuration = configuration;
             _cacheService = cacheService;
             _emailSender = emailSender;
             _userServiceClient = userServiceClient;
@@ -57,30 +53,14 @@ namespace AuthService.Application.Services
 
             if (user == null)
             {
-                return (
-                    null,
-                    new()
-                    {
-                        Code = 404,
-                        IsError = true,
-                        Message = "User not found",
-                    }
-                );
+                return (null, StatusFactory.Create(404, "User not found", true));
             }
 
             var isPasswordValid = _passwordHasher.Verify(password, user.PasswordHash);
 
             if (!isPasswordValid)
             {
-                return (
-                    null,
-                    new()
-                    {
-                        Code = 401,
-                        IsError = true,
-                        Message = "Invalid username or password",
-                    }
-                );
+                return (null, StatusFactory.Create(401, "Invalid username or password", true));
             }
 
             var accesstoken = await _tokenService.Generate(user);
@@ -99,12 +79,7 @@ namespace AuthService.Application.Services
                     RefreshToken = refreshToken,
                     RefreshTokenExpired = refreshTokenExpires,
                 },
-                new()
-                {
-                    Code = 200,
-                    Message = "Sign in successful",
-                    IsError = false,
-                }
+                StatusFactory.Create(200, "Sign in successful", false)
             );
         }
 
@@ -125,15 +100,7 @@ namespace AuthService.Application.Services
                 || user.RefreshTokenExpiryTime < DateTime.Now
             )
             {
-                return (
-                    null,
-                    new()
-                    {
-                        Code = 400,
-                        Message = "Cannot refresh token",
-                        IsError = true,
-                    }
-                );
+                return (null, StatusFactory.Create(400, "Cannot refresh token", true));
             }
 
             var accessToken = await _tokenService.Generate(user);
@@ -152,12 +119,7 @@ namespace AuthService.Application.Services
                     RefreshToken = refreshToken,
                     RefreshTokenExpired = expiryTime,
                 },
-                new()
-                {
-                    Code = 200,
-                    Message = "Refreshed successfully",
-                    IsError = false,
-                }
+                StatusFactory.Create(200, "Refreshed successfully", false)
             );
         }
 

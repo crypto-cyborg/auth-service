@@ -1,6 +1,4 @@
-﻿using AuthService.Core.Models;
-
-namespace AuthService.Application.Data.Dtos
+﻿namespace AuthService.Application.Data.Dtos
 {
     public class ExistsDto
     {

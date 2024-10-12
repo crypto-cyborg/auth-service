@@ -1,4 +1,4 @@
-﻿namespace AuthService.Persistence.Data
+﻿namespace AuthService.Application.Data
 {
     public class TokenData
     {
