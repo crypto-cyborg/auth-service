@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using AuthService.Application.Data.Dtos;
 using AuthService.Core.Exceptions;
 using AuthService.Core.Models;
-using AuthService.Persistence.Data.Dtos;
+using AuthService.Persistence.Extensions;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -85,6 +85,31 @@ namespace AuthService.Application.ServiceClients
                 );
 
             return data;
+        }
+
+        public async Task<User> UpdateUser(User request)
+        {
+            var body = JsonContent.Create(request);
+            var response = await _httpClient.PatchAsync($"users/{request.Id}", body);
+
+            System.Console.WriteLine(body.Value);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(
+                    $"Failed to update refresh token for user with ID {request.Id}. Status code: {response.StatusCode}"
+                );
+            }
+
+            var dataString = await response.Content.ReadAsStringAsync();
+            var updatedUser =
+                JsonConvert.DeserializeObject<User>(dataString)
+                ?? throw new AuthServiceExceptions(
+                    $"Internal server error",
+                    AuthServiceExceptionTypes.DESEREALIZATION_ERROR
+                );
+
+            return updatedUser;
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿using AuthService.Application.Interfaces;
-using AuthService.Core.Models;
-using AuthService.Persistence.Data;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthService.Application.Data;
+using AuthService.Application.Interfaces;
+using AuthService.Core.Models;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AuthService.Application.Services
 {
@@ -23,7 +23,8 @@ namespace AuthService.Application.Services
             Claim[] claims =
             [
                 new("userId", user.Id.ToString()),
-                new(ClaimTypes.Role, string.Join(",", user.UserRoles))
+                new(ClaimTypes.NameIdentifier, user.Username),
+                new(ClaimTypes.Role, string.Join(",", user.UserRoles)),
             ];
 
             var signingCredentials = new SigningCredentials(
@@ -61,14 +62,18 @@ namespace AuthService.Application.Services
                 ValidateLifetime = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(_options.SecretKey)),
-                RoleClaimType = ClaimTypes.Role
+                    Encoding.UTF8.GetBytes(_options.SecretKey)
+                ),
+                RoleClaimType = ClaimTypes.Role,
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var tokenValidationResult = await tokenHandler.ValidateTokenAsync(token, tokenValidationParameters);
-            
+            var tokenValidationResult = await tokenHandler.ValidateTokenAsync(
+                token,
+                tokenValidationParameters
+            );
+
             if (!tokenValidationResult.IsValid)
             {
                 throw new SecurityTokenException("Invalid token");

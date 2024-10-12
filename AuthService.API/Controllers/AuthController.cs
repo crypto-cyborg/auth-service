@@ -17,16 +17,19 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("RefreshToken")]
-        public async Task<IActionResult> RefreshTokenTest(TokenInfoDTO request)
+        public async Task<IActionResult> RefreshToken(TokenInfoDTO request)
         {
-            var (v, status) = await _userService.RefreshTokenAsync(request);
+            var (tokenData, status) = await _userService.RefreshTokenAsync(request);
 
             if (status.IsError)
             {
                 return BadRequest(status);
             }
 
-            return Ok(v);
+            HttpContext.Response.Cookies.Append("tasty-cookies", tokenData.AccessToken);
+            HttpContext.Response.Cookies.Append("refresh-tasty-cookies", tokenData.RefreshToken);
+
+            return Ok(tokenData);
         }
 
         [HttpPost("signup")]
@@ -60,7 +63,7 @@ namespace AuthService.API.Controllers
             HttpContext.Response.Cookies.Append("tasty-cookies", tokenData.AccessToken);
             HttpContext.Response.Cookies.Append("refresh-tasty-cookies", tokenData.RefreshToken);
 
-            return Ok();
+            return Ok(status);
         }
 
         [HttpPost("check")]

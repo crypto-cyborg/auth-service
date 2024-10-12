@@ -1,4 +1,5 @@
-﻿using AuthService.Application.Data;
+﻿using System.Security.Claims;
+using AuthService.Application.Data;
 using AuthService.Application.Data.Dtos;
 using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
@@ -70,7 +71,7 @@ namespace AuthService.Application.Services
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = refreshTokenExpires;
 
-            //await _userRepository.SaveAsync();
+            await _userServiceClient.UpdateUser(user);
 
             return (
                 new()
@@ -91,8 +92,10 @@ namespace AuthService.Application.Services
 
             var principal = await _tokenService.GetPrincipalFromExpiredToken(data.AccessToken);
 
-            var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
-            var user = (await _userRepository.Get(u => u.Id.ToString() == userId)).First();
+            var username = principal
+                .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                ?.Value;
+            var user = await _userServiceClient.GetUser(username);
 
             if (
                 user is null
@@ -110,7 +113,7 @@ namespace AuthService.Application.Services
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = expiryTime;
 
-            //await _userRepository.SaveAsync();
+            await _userServiceClient.UpdateUser(user);
 
             return (
                 new()

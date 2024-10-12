@@ -1,11 +1,11 @@
 using AuthService.API.Extensions;
+using AuthService.Application.Data;
 using AuthService.Application.Infrastructure;
 using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using AuthService.Application.Validators;
-using AuthService.Persistence.Data;
 using AuthService.Persistence.Repositories;
 using AuthService.Persistence.Repositories.Interfaces;
 using FluentValidation;
@@ -19,7 +19,6 @@ Console.WriteLine($"--> Current environment: {builder.Environment.EnvironmentNam
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,7 +35,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
-builder.Services.AddScoped<UserServiceClient>();    
+builder.Services.AddScoped<UserServiceClient>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();
@@ -51,12 +50,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCookiePolicy(new CookiePolicyOptions
-{
-    MinimumSameSitePolicy = SameSiteMode.Strict,
-    HttpOnly = HttpOnlyPolicy.Always,
-    Secure = CookieSecurePolicy.Always,
-});
+app.UseCookiePolicy(
+    new CookiePolicyOptions
+    {
+        MinimumSameSitePolicy = SameSiteMode.Strict,
+        HttpOnly = HttpOnlyPolicy.Always,
+        Secure = CookieSecurePolicy.Always,
+    }
+);
 
 app.UseAuthentication();
 app.UseAuthorization();

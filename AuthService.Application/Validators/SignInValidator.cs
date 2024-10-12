@@ -1,4 +1,4 @@
-﻿using AuthService.Persistence.Data.Dtos;
+﻿using AuthService.Application.Data.Dtos;
 using FluentValidation;
 
 namespace AuthService.Application.Validators

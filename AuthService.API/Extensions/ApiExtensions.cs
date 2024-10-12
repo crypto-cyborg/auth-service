@@ -1,42 +1,49 @@
-﻿using AuthService.Persistence.Data;
+﻿using System.Security.Claims;
+using System.Text;
+using AuthService.Application.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
 
 namespace AuthService.API.Extensions
 {
     public static class ApiExtensions
     {
-        public static void AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static void AddApiAuthentication(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
         {
             var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
 
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opts =>
-                {
-                    opts.TokenValidationParameters = new()
+                .AddJwtBearer(
+                    JwtBearerDefaults.AuthenticationScheme,
+                    opts =>
                     {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(jwtOptions!.SecretKey)),
-                        RoleClaimType = ClaimTypes.Role
-                    };
-
-                    opts.Events = new JwtBearerEvents
-                    {
-                        OnMessageReceived = context =>
+                        opts.TokenValidationParameters = new()
                         {
-                            context.Token = context.Request.Cookies["tasty-cookies"];
+                            ValidateIssuer = false,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(
+                                Encoding.UTF8.GetBytes(jwtOptions!.SecretKey)
+                            ),
+                            RoleClaimType = ClaimTypes.Role,
+                        };
 
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
+                        opts.Events = new JwtBearerEvents
+                        {
+                            OnMessageReceived = context =>
+                            {
+                                context.Token = context.Request.Cookies["tasty-cookies"];
+
+                                return Task.CompletedTask;
+                            },
+                        };
+                    }
+                );
 
             services.AddAuthorization();
         }
