@@ -1,4 +1,5 @@
 using AuthService.API.Extensions;
+using AuthService.API.Middlewares;
 using AuthService.Application.Data;
 using AuthService.Application.Infrastructure;
 using AuthService.Application.Infrastructure.Interfaces;
@@ -21,6 +22,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<GlobalExceptionsMiddleware>();
+
 builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
@@ -28,6 +31,7 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
 // builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
@@ -45,6 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<GlobalExceptionsMiddleware>();
 
 app.UseCookiePolicy(
     new CookiePolicyOptions

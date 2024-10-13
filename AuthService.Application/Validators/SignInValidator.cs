@@ -7,17 +7,9 @@ namespace AuthService.Application.Validators
     {
         public SignInValidator()
         {
-            RuleFor(u => u.Username)
-                .NotEmpty()
-                .WithMessage("Username is required")
-                .Matches(RegexPatterns.Username)
-                .When(u => string.IsNullOrEmpty(u.Username));
+            RuleFor(u => u.Username).NotEmpty().WithMessage("Username is required");
 
-            RuleFor(u => u.Password)
-                .NotEmpty()
-                .WithMessage("Password is required")
-                .Matches(RegexPatterns.Password)
-                .When(u => !string.IsNullOrEmpty(u.Password));
+            RuleFor(u => u.Password).NotEmpty().WithMessage("Password is required");
         }
     }
 }

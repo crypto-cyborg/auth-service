@@ -65,7 +65,10 @@ namespace AuthService.Application.ServiceClients
 
             if (!data.Found)
             {
-                return null;
+                throw new AuthServiceExceptions(
+                    "User not found",
+                    AuthServiceExceptionTypes.USER_NOT_FOUND
+                );
             }
 
             return data.Data;

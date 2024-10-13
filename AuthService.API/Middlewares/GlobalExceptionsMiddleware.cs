@@ -33,6 +33,10 @@ public class GlobalExceptionsMiddleware : IMiddleware
 
             case AuthServiceExceptionTypes.DESEREALIZATION_ERROR:
                 break;
+
+            case AuthServiceExceptionTypes.USER_NOT_FOUND:
+                code = HttpStatusCode.NotFound;
+                break;
         }
 
         var result = JsonConvert.SerializeObject(new { ex.Message, code });
