@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using AuthService.Application.Data;
 using AuthService.Application.Interfaces;
@@ -45,12 +46,12 @@ namespace AuthService.Application.Services
 
         public string GenerateRandomToken()
         {
-            var timestamp = DateTime.UtcNow.ToBinary().ToString();
-            var uid = Guid.NewGuid().ToString();
+            var randomNumber = new byte[64];
 
-            var token = $"{timestamp}{uid}";
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
 
-            return token;
+            return Convert.ToBase64String(randomNumber);
         }
 
         public async Task<ClaimsIdentity> GetPrincipalFromExpiredToken(string token)
