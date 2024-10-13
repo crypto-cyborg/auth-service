@@ -81,5 +81,15 @@ namespace AuthService.Application.Services
 
             return tokenValidationResult.ClaimsIdentity;
         }
+
+        public string GetUsername(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.ReadJwtToken(token);
+
+            return securityToken
+                .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+        }
     }
 }

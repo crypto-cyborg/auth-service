@@ -13,6 +13,7 @@ namespace AuthService.Application.Services
     {
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
+
         // private readonly ICacheService _cacheService;
         private readonly IEmailSender _emailSender;
         private readonly UserServiceClient _userServiceClient;
@@ -78,6 +79,14 @@ namespace AuthService.Application.Services
                 },
                 StatusFactory.Create(200, "Sign in successful", false)
             );
+        }
+
+        public async Task<User> GetSelf(string token)
+        {
+            var username = _tokenService.GetUsername(token);
+            var user = await _userServiceClient.GetUser(username);
+
+            return user;
         }
 
         public async Task<(TokenData? tokenData, Status status)> RefreshTokenAsync(

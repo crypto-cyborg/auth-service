@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
+using AuthService.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers
@@ -8,13 +9,29 @@ namespace AuthService.API.Controllers
     [Route("api/[controller]")]
     public class AccoutController : ControllerBase
     {
-        // private readonly ICacheService _cacheService;
-        private readonly UserServiceClient _userServiceClient;
+        private readonly UserService _userService;
 
-        public AccoutController(UserServiceClient userServiceClient)
+        // private readonly ICacheService _cacheService;
+
+        public AccoutController(UserService userService)
         {
+            _userService = userService;
             // _cacheService = cacheService;
-            _userServiceClient = userServiceClient;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Authorize()
+        {
+            var token = HttpContext.Request.Cookies["tasty-cookies"];
+
+            if (token is null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userService.GetSelf(token);
+
+            return Ok(user);
         }
 
         [HttpPost("verify")]

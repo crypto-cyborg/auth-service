@@ -1,5 +1,5 @@
-﻿using AuthService.Core.Models;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using AuthService.Core.Models;
 
 namespace AuthService.Application.Interfaces
 {
@@ -8,5 +8,6 @@ namespace AuthService.Application.Interfaces
         Task<string> Generate(User user);
         string GenerateRandomToken();
         Task<ClaimsIdentity> GetPrincipalFromExpiredToken(string token);
+        string GetUsername(string token);
     }
 }
