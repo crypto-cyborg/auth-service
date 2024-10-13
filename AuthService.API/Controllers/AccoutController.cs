@@ -8,12 +8,12 @@ namespace AuthService.API.Controllers
     [Route("api/[controller]")]
     public class AccoutController : ControllerBase
     {
-        private readonly ICacheService _cacheService;
+        // private readonly ICacheService _cacheService;
         private readonly UserServiceClient _userServiceClient;
 
-        public AccoutController(ICacheService cacheService, UserServiceClient userServiceClient)
+        public AccoutController(UserServiceClient userServiceClient)
         {
-            _cacheService = cacheService;
+            // _cacheService = cacheService;
             _userServiceClient = userServiceClient;
         }
 

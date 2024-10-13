@@ -28,7 +28,7 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<ICacheService, CacheService>();
+// builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<UserServiceClient>();

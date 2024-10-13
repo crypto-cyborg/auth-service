@@ -1,0 +1,9 @@
+{
+    "name": "dotnet-run-default",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "start": "dotnet run --project AuthService.API",
+        "watch": "dotnet watch --project AuthService.API"
+    }
+}

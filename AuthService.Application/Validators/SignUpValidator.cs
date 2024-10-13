@@ -9,29 +9,39 @@ namespace AuthService.Application.Validators
         {
             RuleFor(x => x.Username)
                 .NotEmpty()
-                .WithMessage("Username is required")
+                .WithMessage("Username is required.")
                 .Matches(RegexPatterns.Username)
-                .WithMessage(
-                    "Username must be between 8 and 24 characters long and can only contain letters and numbers"
-                );
+                .WithMessage("Username does not match the pattern");
 
             RuleFor(x => x.Password)
                 .NotEmpty()
                 .WithMessage("Password is required.")
                 .Matches(RegexPatterns.Password)
-                .WithMessage(
-                    "Password must be between 8 and 24 characters long and can only contain letters, numbers, and symbols !@#~*."
-                );
+                .WithMessage("Password does not match the pattern");
+
+            RuleFor(x => x.ConfirmPassword)
+                .NotEmpty()
+                .WithMessage("Confirm Password is required.")
+                .Equal(x => x.Password)
+                .WithMessage("Passwords do not match.");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .WithMessage("Email is required")
-                .Matches(RegexPatterns.Email)
-                .WithMessage("Email doesn't match the pattern");
+                .WithMessage("Email is required.")
+                .EmailAddress()
+                .WithMessage("Invalid email format.");
 
-            RuleFor(x => x.FirstName).NotEmpty().WithMessage("Name is required");
+            RuleFor(x => x.FirstName)
+                .NotEmpty()
+                .WithMessage("First name is required.")
+                .MaximumLength(50)
+                .WithMessage("First name must not exceed 50 characters.");
 
-            RuleFor(x => x.LastName).NotEmpty().WithMessage("Surname is required");
+            RuleFor(x => x.LastName)
+                .NotEmpty()
+                .WithMessage("Last name is required.")
+                .MaximumLength(50)
+                .WithMessage("Last name must not exceed 50 characters.");
         }
     }
 }

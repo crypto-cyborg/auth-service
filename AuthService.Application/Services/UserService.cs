@@ -13,21 +13,21 @@ namespace AuthService.Application.Services
     {
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
-        private readonly ICacheService _cacheService;
+        // private readonly ICacheService _cacheService;
         private readonly IEmailSender _emailSender;
         private readonly UserServiceClient _userServiceClient;
 
         public UserService(
             IPasswordHasher passwordHasher,
             ITokenService tokenService,
-            ICacheService cacheService,
+            // ICacheService cacheService,
             IEmailSender emailSender,
             UserServiceClient userServiceClient
         )
         {
             _passwordHasher = passwordHasher;
             _tokenService = tokenService;
-            _cacheService = cacheService;
+            // _cacheService = cacheService;
             _emailSender = emailSender;
             _userServiceClient = userServiceClient;
         }
@@ -122,20 +122,20 @@ namespace AuthService.Application.Services
             );
         }
 
-        private async Task SendVerification(User user)
-        {
-            var verificationToken = _tokenService.GenerateRandomToken();
+        // private async Task SendVerification(User user)
+        // {
+        //     var verificationToken = _tokenService.GenerateRandomToken();
 
-            string subject = "Academy account confirmation";
-            string body = $"https://localhost:7171/verify?token={verificationToken}";
+        //     string subject = "Academy account confirmation";
+        //     string body = $"https://localhost:7171/verify?token={verificationToken}";
 
-            await _cacheService.Set<string>(
-                verificationToken,
-                user.Id.ToString(),
-                DateTime.UtcNow.AddMinutes(5)
-            );
+        //     await _cacheService.Set<string>(
+        //         verificationToken,
+        //         user.Id.ToString(),
+        //         DateTime.UtcNow.AddMinutes(5)
+        //     );
 
-            await _emailSender.SendAsync(user.Email, subject, body);
-        }
+        //     await _emailSender.SendAsync(user.Email, subject, body);
+        // }
     }
 }
