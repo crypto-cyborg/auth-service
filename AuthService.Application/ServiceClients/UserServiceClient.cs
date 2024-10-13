@@ -79,6 +79,11 @@ namespace AuthService.Application.ServiceClients
             var body = JsonContent.Create(request);
             var response = await _httpClient.PostAsync("users", body);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(await response.Content.ReadAsStringAsync());
+            }
+
             var dataString = await response.Content.ReadAsStringAsync();
             var data =
                 JsonConvert.DeserializeObject<User>(dataString)
