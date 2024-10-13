@@ -1,5 +1,6 @@
 using AuthService.API.Extensions;
 using AuthService.API.Middlewares;
+using AuthService.Application;
 using AuthService.Application.Data;
 using AuthService.Application.Infrastructure;
 using AuthService.Application.Infrastructure.Interfaces;
@@ -31,6 +32,7 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ICookiesService, CookiesService>();
 
 // builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();

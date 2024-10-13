@@ -2,6 +2,7 @@
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace AuthService.API.Controllers
 {
@@ -10,19 +11,24 @@ namespace AuthService.API.Controllers
     public class AccoutController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly IConfiguration _configuration;
 
         // private readonly ICacheService _cacheService;
 
-        public AccoutController(UserService userService)
+        public AccoutController(UserService userService, IConfiguration configuration)
         {
             _userService = userService;
+            _configuration = configuration;
             // _cacheService = cacheService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Authorize()
         {
-            var token = HttpContext.Request.Cookies["tasty-cookies"];
+            var token = HttpContext.Request.Cookies[
+                _configuration.GetSection("cookie-name").Value
+                    ?? throw new InvalidConfigurationException("Cannot find cookie key")
+            ];
 
             if (token is null)
             {

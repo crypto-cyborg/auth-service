@@ -83,7 +83,7 @@ namespace AuthService.Application.Services
 
         public async Task<User> GetSelf(string token)
         {
-            var username = _tokenService.GetUsername(token);
+            var username = await _tokenService.GetUsername(token);
             var user = await _userServiceClient.GetUser(username);
 
             return user;

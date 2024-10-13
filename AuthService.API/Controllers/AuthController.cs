@@ -1,7 +1,9 @@
-﻿using AuthService.Application.Data.Dtos;
+﻿using AuthService.Application;
+using AuthService.Application.Data.Dtos;
 using AuthService.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace AuthService.API.Controllers
 {
@@ -10,10 +12,18 @@ namespace AuthService.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly IConfiguration _configuration;
+        private readonly ICookiesService _cookiesService;
 
-        public AuthController(UserService userService)
+        public AuthController(
+            UserService userService,
+            IConfiguration configuration,
+            ICookiesService cookiesService
+        )
         {
             _userService = userService;
+            _configuration = configuration;
+            _cookiesService = cookiesService;
         }
 
         [HttpPost("RefreshToken")]
@@ -26,8 +36,7 @@ namespace AuthService.API.Controllers
                 return BadRequest(status);
             }
 
-            HttpContext.Response.Cookies.Append("tasty-cookies", tokenData.AccessToken);
-            HttpContext.Response.Cookies.Append("refresh-tasty-cookies", tokenData.RefreshToken);
+            _cookiesService.WriteToken(tokenData!, HttpContext);
 
             return Ok(tokenData);
         }
@@ -60,8 +69,7 @@ namespace AuthService.API.Controllers
                 return BadRequest(status);
             }
 
-            HttpContext.Response.Cookies.Append("tasty-cookies", tokenData.AccessToken);
-            HttpContext.Response.Cookies.Append("refresh-tasty-cookies", tokenData.RefreshToken);
+            _cookiesService.WriteToken(tokenData!, HttpContext);
 
             return Ok(status);
         }

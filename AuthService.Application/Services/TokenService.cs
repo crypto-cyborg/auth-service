@@ -55,17 +55,7 @@ namespace AuthService.Application.Services
 
         public async Task<ClaimsIdentity> GetPrincipalFromExpiredToken(string token)
         {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_options.SecretKey)
-                ),
-                RoleClaimType = ClaimTypes.Role,
-            };
+            var tokenValidationParameters = GetValidationParameters();
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -82,14 +72,39 @@ namespace AuthService.Application.Services
             return tokenValidationResult.ClaimsIdentity;
         }
 
-        public string GetUsername(string token)
+        public async Task<string> GetUsername(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.ReadJwtToken(token);
+            var validationParams = GetValidationParameters();
+
+            var tokenValidationResult = await handler.ValidateTokenAsync(token, validationParams);
+
+            if (!tokenValidationResult.IsValid)
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
 
             return securityToken
                 .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
+        }
+
+        private TokenValidationParameters GetValidationParameters()
+        {
+            var parameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(_options.SecretKey)
+                ),
+                RoleClaimType = ClaimTypes.Role,
+            };
+
+            return parameters;
         }
     }
 }
