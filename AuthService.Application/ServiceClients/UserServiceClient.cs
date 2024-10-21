@@ -44,6 +44,26 @@ namespace AuthService.Application.ServiceClients
             return user;
         }
 
+        public async Task<User> GetUser(Guid id)
+        {
+            var response = await _httpClient.GetAsync($"users/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Cannot proceed request. {nameof(GetUser)}");
+            }
+
+            var dataStream = await response.Content.ReadAsStringAsync();
+            var user =
+                JsonConvert.DeserializeObject<User>(dataStream)
+                ?? throw new AuthServiceExceptions(
+                    $"Internal server error",
+                    AuthServiceExceptionTypes.SERIALIZATION_ERROR
+                );
+
+            return user;
+        }
+
         private async Task<Guid?> GetUserId(string username)
         {
             var response = await _httpClient.GetAsync($"users/{username}/exists");

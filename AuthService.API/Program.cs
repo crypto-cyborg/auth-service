@@ -8,6 +8,7 @@ using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using AuthService.Application.Validators;
+using AuthService.Persistence;
 using FluentValidation;
 using Microsoft.AspNetCore.CookiePolicy;
 
@@ -25,6 +26,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<GlobalExceptionsMiddleware>();
 
+builder.Services.AddSingleton<InternalCache<string, Guid>>();
+
 builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
@@ -35,6 +38,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICookiesService, CookiesService>();
 
 // builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddScoped<InternalCacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<UserServiceClient>();

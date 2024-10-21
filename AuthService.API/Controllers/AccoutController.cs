@@ -1,5 +1,4 @@
-﻿using AuthService.Application.Interfaces;
-using AuthService.Application.ServiceClients;
+﻿using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.Configuration;
@@ -14,12 +13,20 @@ namespace AuthService.API.Controllers
         private readonly IConfiguration _configuration;
 
         // private readonly ICacheService _cacheService;
+        private readonly InternalCacheService _cacheService;
+        private readonly UserServiceClient _userServiceClient;
 
-        public AccoutController(UserService userService, IConfiguration configuration)
+        public AccoutController(
+            UserService userService,
+            IConfiguration configuration,
+            InternalCacheService cacheService,
+            UserServiceClient userServiceClient
+        )
         {
             _userService = userService;
             _configuration = configuration;
-            // _cacheService = cacheService;
+            _cacheService = cacheService;
+            _userServiceClient = userServiceClient;
         }
 
         [HttpGet]
@@ -43,21 +50,23 @@ namespace AuthService.API.Controllers
         [HttpPost("verify")]
         public async Task<IActionResult> Verify(string token)
         {
-            // var data = await _cacheService.Get<string>(token);
+            var data = await _cacheService.Get(token);
 
-            // if (data is null)
-            // {
-            //     return NotFound("Token is expired or does not exist");
-            // }
+            if (data == default)
+            {
+                return NotFound("Token is expired or does not exist");
+            }
 
-            // var user = (await _userRepository.Get(u => u.Id.ToString() == data)).First();
-            // user.IsEmailConfirmed = true;
+            var user = await _userServiceClient.GetUser(data);
+            user.IsEmailConfirmed = true;
 
-            // //await _userRepository.SaveAsync();
+            await _userServiceClient.UpdateUser(user);
 
-            // Console.WriteLine($"--> Verified user {user.Username}");
+            await _cacheService.Remove(token);
 
-            return Ok("Confirmed");
+            Console.WriteLine($"--> Verified user {user.Username}");
+
+            return NoContent();
         }
     }
 }
