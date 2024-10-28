@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
+using AuthService.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.Configuration;
 
@@ -9,24 +10,22 @@ namespace AuthService.API.Controllers
     [Route("api/[controller]")]
     public class AccoutController : ControllerBase
     {
-        private readonly UserService _userService;
         private readonly IConfiguration _configuration;
-
-        // private readonly ICacheService _cacheService;
+        private readonly IAccountService _accountService;
         private readonly InternalCacheService _cacheService;
         private readonly UserServiceClient _userServiceClient;
 
         public AccoutController(
-            UserService userService,
             IConfiguration configuration,
             InternalCacheService cacheService,
-            UserServiceClient userServiceClient
+            UserServiceClient userServiceClient,
+            IAccountService accountService
         )
         {
-            _userService = userService;
             _configuration = configuration;
             _cacheService = cacheService;
             _userServiceClient = userServiceClient;
+            _accountService = accountService;
         }
 
         [HttpGet]
@@ -42,7 +41,7 @@ namespace AuthService.API.Controllers
                 return Unauthorized();
             }
 
-            var user = await _userService.GetSelf(token);
+            var user = await _accountService.GetSelf(token);
 
             return Ok(user);
         }

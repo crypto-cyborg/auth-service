@@ -23,9 +23,8 @@ namespace AuthService.Application.ServiceClients
             };
         }
 
-        public async Task<User> GetUser(string username)
+        public async Task<User> GetUser(Guid id)
         {
-            var id = await GetUserId(username);
             var response = await _httpClient.GetAsync($"users/{id}");
 
             if (!response.IsSuccessStatusCode)
@@ -44,22 +43,10 @@ namespace AuthService.Application.ServiceClients
             return user;
         }
 
-        public async Task<User> GetUser(Guid id)
+        public async Task<User> GetUser(string username)
         {
-            var response = await _httpClient.GetAsync($"users/{id}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"Cannot proceed request. {nameof(GetUser)}");
-            }
-
-            var dataStream = await response.Content.ReadAsStringAsync();
-            var user =
-                JsonConvert.DeserializeObject<User>(dataStream)
-                ?? throw new AuthServiceExceptions(
-                    $"Internal server error",
-                    AuthServiceExceptionTypes.SERIALIZATION_ERROR
-                );
+            var id = await GetUserId(username) ?? throw new Exception();
+            var user = await GetUser(id: id);
 
             return user;
         }

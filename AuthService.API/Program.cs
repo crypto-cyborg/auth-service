@@ -7,6 +7,7 @@ using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
+using AuthService.Application.Services.Interfaces;
 using AuthService.Application.Validators;
 using AuthService.Persistence;
 using FluentValidation;
@@ -31,13 +32,12 @@ builder.Services.AddSingleton<InternalCache<string, Guid>>();
 builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICookiesService, CookiesService>();
 
-// builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<InternalCacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 

@@ -4,22 +4,21 @@ using AuthService.Application.Data.Dtos;
 using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
+using AuthService.Application.Services.Interfaces;
 using AuthService.Core.Models;
 using AuthService.Persistence.Extensions;
 
 namespace AuthService.Application.Services
 {
-    public class UserService
+    public class IdentityService : IIdentityService
     {
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
-
-        // private readonly ICacheService _cacheService;
         private readonly InternalCacheService _cacheService;
         private readonly IEmailSender _emailSender;
         private readonly UserServiceClient _userServiceClient;
 
-        public UserService(
+        public IdentityService(
             IPasswordHasher passwordHasher,
             ITokenService tokenService,
             IEmailSender emailSender,
@@ -80,14 +79,6 @@ namespace AuthService.Application.Services
                 },
                 StatusFactory.Create(200, "Sign in successful", false)
             );
-        }
-
-        public async Task<User> GetSelf(string token)
-        {
-            var username = await _tokenService.GetUsername(token);
-            var user = await _userServiceClient.GetUser(username);
-
-            return user;
         }
 
         public async Task<(TokenData? tokenData, Status status)> RefreshTokenAsync(

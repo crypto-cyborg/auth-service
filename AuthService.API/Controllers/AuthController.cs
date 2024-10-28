@@ -1,9 +1,8 @@
 ﻿using AuthService.Application;
 using AuthService.Application.Data.Dtos;
-using AuthService.Application.Services;
+using AuthService.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace AuthService.API.Controllers
 {
@@ -11,25 +10,25 @@ namespace AuthService.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IIdentityService _identityService;
         private readonly IConfiguration _configuration;
         private readonly ICookiesService _cookiesService;
 
         public AuthController(
-            UserService userService,
             IConfiguration configuration,
-            ICookiesService cookiesService
+            ICookiesService cookiesService,
+            IIdentityService identityService
         )
         {
-            _userService = userService;
             _configuration = configuration;
             _cookiesService = cookiesService;
+            _identityService = identityService;
         }
 
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(TokenInfoDTO request)
         {
-            var (tokenData, status) = await _userService.RefreshTokenAsync(request);
+            var (tokenData, status) = await _identityService.RefreshTokenAsync(request);
 
             if (status.IsError)
             {
@@ -49,7 +48,7 @@ namespace AuthService.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _userService.SignUp(request);
+            var response = await _identityService.SignUp(request);
 
             return Created(nameof(SignUp), response);
         }
@@ -62,7 +61,10 @@ namespace AuthService.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var (tokenData, status) = await _userService.SignIn(request.Username, request.Password);
+            var (tokenData, status) = await _identityService.SignIn(
+                request.Username,
+                request.Password
+            );
 
             if (status.IsError)
             {
