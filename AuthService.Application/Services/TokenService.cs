@@ -4,7 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using AuthService.Application.Data;
 using AuthService.Application.Interfaces;
+using AuthService.Core.Exceptions;
 using AuthService.Core.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,10 +16,12 @@ namespace AuthService.Application.Services
     public class TokenService : ITokenService
     {
         private readonly JwtOptions _options;
+        private readonly IConfiguration _configuration;
 
-        public TokenService(IOptions<JwtOptions> options)
+        public TokenService(IOptions<JwtOptions> options, IConfiguration configuration)
         {
             _options = options.Value;
+            _configuration = configuration;
         }
 
         public async Task<string> Generate(User user)
@@ -54,7 +59,7 @@ namespace AuthService.Application.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        public async Task<ClaimsIdentity> GetPrincipalFromExpiredToken(string token)
+        public async Task<ClaimsIdentity> GetClaims(string token)
         {
             var tokenValidationParameters = GetValidationParameters();
 
@@ -73,22 +78,19 @@ namespace AuthService.Application.Services
             return tokenValidationResult.ClaimsIdentity;
         }
 
-        public async Task<string> GetUsername(string token)
+        public string? ReadToken(HttpContext context)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.ReadJwtToken(token);
-            var validationParams = GetValidationParameters();
+            var name = _configuration.GetSection("cookie-name").Value;
 
-            var tokenValidationResult = await handler.ValidateTokenAsync(token, validationParams);
-
-            if (!tokenValidationResult.IsValid)
+            if (name is null)
             {
-                throw new SecurityTokenException("Invalid token");
+                throw new AuthServiceExceptions(
+                    "Cookies configuration not found",
+                    AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION
+                );
             }
 
-            return securityToken
-                .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value;
+            return context.Request.Cookies[name];
         }
 
         private TokenValidationParameters GetValidationParameters()

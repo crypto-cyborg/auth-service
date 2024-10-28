@@ -87,7 +87,7 @@ namespace AuthService.Application.Services
         {
             ArgumentNullException.ThrowIfNull(data);
 
-            var principal = await _tokenService.GetPrincipalFromExpiredToken(data.AccessToken);
+            var principal = await _tokenService.GetClaims(data.AccessToken);
 
             var username = principal
                 .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)

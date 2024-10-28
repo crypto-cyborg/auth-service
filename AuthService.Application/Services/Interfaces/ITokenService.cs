@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AuthService.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace AuthService.Application.Interfaces
 {
@@ -7,7 +8,7 @@ namespace AuthService.Application.Interfaces
     {
         Task<string> Generate(User user);
         string GenerateRandomToken();
-        Task<ClaimsIdentity> GetPrincipalFromExpiredToken(string token);
-        Task<string> GetUsername(string token);
+        Task<ClaimsIdentity> GetClaims(string token);
+        string? ReadToken(HttpContext context);
     }
 }

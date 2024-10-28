@@ -33,6 +33,7 @@ builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -45,6 +46,7 @@ builder.Services.AddScoped<UserServiceClient>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ResetPasswordValidator>();
 
 var app = builder.Build();
 

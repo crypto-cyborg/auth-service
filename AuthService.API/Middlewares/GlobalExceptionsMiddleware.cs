@@ -37,6 +37,10 @@ public class GlobalExceptionsMiddleware : IMiddleware
             case AuthServiceExceptionTypes.USER_NOT_FOUND:
                 code = HttpStatusCode.NotFound;
                 break;
+
+            case AuthServiceExceptionTypes.INVALID_PASSWORD:
+                code = HttpStatusCode.Forbidden;
+                break;
         }
 
         var result = JsonConvert.SerializeObject(new { ex.Message, code });
