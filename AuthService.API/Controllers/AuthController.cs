@@ -1,5 +1,6 @@
 ﻿using AuthService.Application;
 using AuthService.Application.Data.Dtos;
+using AuthService.Application.Interfaces;
 using AuthService.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,26 +9,22 @@ namespace AuthService.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(
+        IConfiguration configuration,
+        ICookiesService cookiesService,
+        IIdentityService identityService,
+        ITokenService tokenService
+    ) : ControllerBase
     {
-        private readonly IIdentityService _identityService;
-        private readonly IConfiguration _configuration;
-        private readonly ICookiesService _cookiesService;
-
-        public AuthController(
-            IConfiguration configuration,
-            ICookiesService cookiesService,
-            IIdentityService identityService
-        )
-        {
-            _configuration = configuration;
-            _cookiesService = cookiesService;
-            _identityService = identityService;
-        }
+        private readonly IIdentityService _identityService = identityService;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly ICookiesService _cookiesService = cookiesService;
+        private readonly ITokenService _tokenService = tokenService;
 
         [HttpPost("RefreshToken")]
-        public async Task<IActionResult> RefreshToken(TokenInfoDTO request)
+        public async Task<IActionResult> RefreshToken()
         {
+            var request = _tokenService.ReadToken(HttpContext);
             var (tokenData, status) = await _identityService.RefreshTokenAsync(request);
 
             if (status.IsError)

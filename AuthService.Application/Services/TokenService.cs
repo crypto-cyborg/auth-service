@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AuthService.Application.Data;
+using AuthService.Application.Data.Dtos;
 using AuthService.Application.Interfaces;
 using AuthService.Core.Exceptions;
 using AuthService.Core.Models;
@@ -78,19 +79,25 @@ namespace AuthService.Application.Services
             return tokenValidationResult.ClaimsIdentity;
         }
 
-        public string? ReadToken(HttpContext context)
+        public TokenInfoDTO? ReadToken(HttpContext context)
         {
-            var name = _configuration.GetSection("cookie-name").Value;
-
-            if (name is null)
-            {
-                throw new AuthServiceExceptions(
+            var name =
+                _configuration.GetSection("cookie-name").Value
+                ?? throw new AuthServiceExceptions(
                     "Cookies configuration not found",
                     AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION
                 );
-            }
 
-            return context.Request.Cookies[name];
+            var data = new TokenInfoDTO
+            {
+                AccessToken =
+                    context.Request.Cookies[name] ?? throw new Exception("Cookie config not found"),
+                RefreshToken =
+                    context.Request.Cookies[$"refresh-{name}"]
+                    ?? throw new Exception("Cookie config not found"),
+            };
+
+            return data;
         }
 
         private TokenValidationParameters GetValidationParameters()

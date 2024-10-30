@@ -36,14 +36,14 @@ namespace AuthService.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Authorize()
         {
-            var token = _tokenService.ReadToken(HttpContext);
+            var tokenData = _tokenService.ReadToken(HttpContext);
 
-            if (token is null)
+            if (tokenData is null)
             {
                 return Unauthorized();
             }
 
-            var user = await _accountService.GetSelf(token);
+            var user = await _accountService.GetSelf(tokenData.AccessToken);
 
             return Ok(user);
         }
