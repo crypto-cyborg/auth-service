@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AuthService.Application.Data;
+﻿using AuthService.Application.Data;
 using AuthService.Application.Data.Dtos;
 using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
@@ -10,28 +9,19 @@ using AuthService.Persistence.Extensions;
 
 namespace AuthService.Application.Services
 {
-    public class IdentityService : IIdentityService
+    public class IdentityService(
+        IPasswordHasher passwordHasher,
+        ITokenService tokenService,
+        IEmailSender emailSender,
+        UserServiceClient userServiceClient,
+        InternalCacheService cacheService
+    ) : IIdentityService
     {
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly ITokenService _tokenService;
-        private readonly InternalCacheService _cacheService;
-        private readonly IEmailSender _emailSender;
-        private readonly UserServiceClient _userServiceClient;
-
-        public IdentityService(
-            IPasswordHasher passwordHasher,
-            ITokenService tokenService,
-            IEmailSender emailSender,
-            UserServiceClient userServiceClient,
-            InternalCacheService cacheService
-        )
-        {
-            _passwordHasher = passwordHasher;
-            _tokenService = tokenService;
-            _emailSender = emailSender;
-            _userServiceClient = userServiceClient;
-            _cacheService = cacheService;
-        }
+        private readonly IPasswordHasher _passwordHasher = passwordHasher;
+        private readonly ITokenService _tokenService = tokenService;
+        private readonly InternalCacheService _cacheService = cacheService;
+        private readonly IEmailSender _emailSender = emailSender;
+        private readonly UserServiceClient _userServiceClient = userServiceClient;
 
         public async Task<User> SignUp(SignUpDTO request)
         {
@@ -89,10 +79,8 @@ namespace AuthService.Application.Services
 
             var principal = await _tokenService.GetClaims(data.AccessToken);
 
-            var username = principal
-                .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                ?.Value;
-            var user = await _userServiceClient.GetUser(username);
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var user = await _userServiceClient.GetUser(new Guid(userId));
 
             if (
                 user is null

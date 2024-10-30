@@ -69,31 +69,5 @@ namespace AuthService.API.Controllers
 
             return NoContent();
         }
-
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var token = _tokenService.ReadToken(HttpContext);
-
-            if (token is null)
-            {
-                return Unauthorized();
-            }
-
-            var userId = (await _tokenService.GetClaims(token)).Claims.FirstOrDefault(c =>
-                c.Type == "userId"
-            );
-
-            System.Console.WriteLine(userId.Value);
-
-            await _accountService.ResetPassword(new Guid(userId!.Value), request);
-
-            return NoContent();
-        }
     }
 }

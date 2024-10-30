@@ -21,21 +21,4 @@ public class AccountService(ITokenService tokenService, UserServiceClient userSe
 
         return user;
     }
-
-    public async Task ResetPassword(Guid userId, ResetPasswordDto request)
-    {
-        var user = await _userServiceClient.GetUser(userId);
-
-        if (!BCrypt.Net.BCrypt.EnhancedVerify(request.CurrentPassword, user.PasswordHash))
-        {
-            throw new AuthServiceExceptions(
-                "Invalid password",
-                AuthServiceExceptionTypes.INVALID_PASSWORD
-            );
-        }
-
-        user.PasswordHash = request.NewPassword;
-
-        await _userServiceClient.UpdateUser(user);
-    }
 }
