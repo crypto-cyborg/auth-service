@@ -22,37 +22,21 @@ public class GlobalExceptionsMiddleware : IMiddleware
         }
     }
 
-    private Task HandleException(HttpContext context, AuthServiceExceptions ex)
-    {
-        var code = HttpStatusCode.InternalServerError;
-
-        switch (ex.Types)
-        {
-            case AuthServiceExceptionTypes.SERIALIZATION_ERROR:
-                break;
-
-            case AuthServiceExceptionTypes.DESEREALIZATION_ERROR:
-                break;
-
-            case AuthServiceExceptionTypes.USER_NOT_FOUND:
-                code = HttpStatusCode.NotFound;
-                break;
-
-            case AuthServiceExceptionTypes.INVALID_PASSWORD:
-                code = HttpStatusCode.Forbidden;
-                break;
-        }
-
-        var result = JsonConvert.SerializeObject(new { ex.Message, code });
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)code;
-
-        return context.Response.WriteAsync(result);
-    }
-
     private Task HandleException(HttpContext context, Exception ex)
     {
         var code = HttpStatusCode.InternalServerError;
+
+        if (ex is AuthServiceExceptions authEx)
+        {
+            code = authEx.Types switch
+            {
+                AuthServiceExceptionTypes.SERIALIZATION_ERROR => HttpStatusCode.BadRequest,
+                AuthServiceExceptionTypes.DESEREALIZATION_ERROR => HttpStatusCode.BadRequest,
+                AuthServiceExceptionTypes.USER_NOT_FOUND => HttpStatusCode.NotFound,
+                AuthServiceExceptionTypes.INVALID_PASSWORD => HttpStatusCode.Forbidden,
+                _ => HttpStatusCode.InternalServerError
+            };
+        }
 
         var result = JsonConvert.SerializeObject(new { ex.Message, code });
         context.Response.ContentType = "application/json";
