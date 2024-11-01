@@ -9,7 +9,7 @@ namespace AuthService.Application.Interfaces
     {
         Task<string> Generate(User user);
         string GenerateRandomToken();
-        Task<ClaimsIdentity> GetClaims(string token);
+        Task<ClaimsIdentity> GetClaimsIdentity(string token);
         TokenInfoDTO? ReadToken(HttpContext context);
     }
 }

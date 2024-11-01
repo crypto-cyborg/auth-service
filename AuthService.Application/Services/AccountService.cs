@@ -15,7 +15,7 @@ public class AccountService(ITokenService tokenService, UserServiceClient userSe
 
     public async Task<User> GetSelf(string token)
     {
-        var claimsIdentity = await _tokenService.GetClaims(token);
+        var claimsIdentity = await _tokenService.GetClaimsIdentity(token);
         var userId = new Guid(claimsIdentity.Claims.FirstOrDefault(c => c.Type == "userId").Value);
         var user = await _userServiceClient.GetUser(userId);
 

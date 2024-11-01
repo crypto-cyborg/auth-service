@@ -3,6 +3,7 @@ using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using AuthService.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.Configuration;
 
@@ -34,16 +35,12 @@ namespace AuthService.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Authorize()
         {
             var tokenData = _tokenService.ReadToken(HttpContext);
 
-            if (tokenData is null)
-            {
-                return Unauthorized();
-            }
-
-            var user = await _accountService.GetSelf(tokenData.AccessToken);
+            var user = await _accountService.GetSelf(tokenData!.AccessToken);
 
             return Ok(user);
         }

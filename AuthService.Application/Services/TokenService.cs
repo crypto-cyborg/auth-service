@@ -14,16 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthService.Application.Services
 {
-    public class TokenService : ITokenService
+    public class TokenService(IOptions<JwtOptions> options, IConfiguration configuration)
+        : ITokenService
     {
-        private readonly JwtOptions _options;
-        private readonly IConfiguration _configuration;
-
-        public TokenService(IOptions<JwtOptions> options, IConfiguration configuration)
-        {
-            _options = options.Value;
-            _configuration = configuration;
-        }
+        private readonly JwtOptions _options = options.Value;
 
         public async Task<string> Generate(User user)
         {
@@ -42,7 +36,7 @@ namespace AuthService.Application.Services
             var token = new JwtSecurityToken(
                 claims: claims,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddHours(_options.ExpiresHours)
+                expires: DateTime.UtcNow.AddSeconds(_options.ExpiresMinutes)
             );
 
             var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
@@ -60,7 +54,7 @@ namespace AuthService.Application.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        public async Task<ClaimsIdentity> GetClaims(string token)
+        public async Task<ClaimsIdentity> GetClaimsIdentity(string token)
         {
             var tokenValidationParameters = GetValidationParameters();
 
@@ -82,7 +76,7 @@ namespace AuthService.Application.Services
         public TokenInfoDTO? ReadToken(HttpContext context)
         {
             var name =
-                _configuration.GetSection("cookie-name").Value
+                configuration.GetSection("cookie-name").Value
                 ?? throw new AuthServiceExceptions(
                     "Cookies configuration not found",
                     AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION

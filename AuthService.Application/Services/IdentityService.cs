@@ -77,7 +77,7 @@ namespace AuthService.Application.Services
         {
             ArgumentNullException.ThrowIfNull(data);
 
-            var principal = await _tokenService.GetClaims(data.AccessToken);
+            var principal = await _tokenService.GetClaimsIdentity(data.AccessToken);
 
             var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
             var user = await _userServiceClient.GetUser(new Guid(userId));
