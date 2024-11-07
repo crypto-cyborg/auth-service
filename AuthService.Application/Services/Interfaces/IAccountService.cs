@@ -6,4 +6,5 @@ namespace AuthService.Application.Services.Interfaces;
 public interface IAccountService
 {
     Task<User> GetSelf(string token);
+    Task ConfirmEmail(string token);
 }

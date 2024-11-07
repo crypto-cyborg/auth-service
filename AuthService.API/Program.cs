@@ -19,6 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine($"--> Current environment: {builder.Environment.EnvironmentName}");
 
+builder.Services.AddCors(opts =>
+    opts.AddDefaultPolicy(policyBuilder => 
+        policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -55,6 +59,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 

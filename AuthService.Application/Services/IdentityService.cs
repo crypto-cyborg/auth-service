@@ -52,7 +52,7 @@ namespace AuthService.Application.Services
             }
 
             var accesstoken = await _tokenService.Generate(user);
-            var refreshToken = _tokenService.GenerateRandomToken();
+            var refreshToken = _tokenService.GenerateRefreshToken();
             var refreshTokenExpires = DateTime.UtcNow.AddDays(1);
 
             user.RefreshToken = refreshToken;
@@ -92,7 +92,7 @@ namespace AuthService.Application.Services
             }
 
             var accessToken = await _tokenService.Generate(user);
-            var refreshToken = _tokenService.GenerateRandomToken();
+            var refreshToken = _tokenService.GenerateRefreshToken();
             var expiryTime = DateTime.UtcNow.AddDays(1);
 
             user.RefreshToken = refreshToken;
@@ -113,10 +113,10 @@ namespace AuthService.Application.Services
 
         private async Task SendVerification(User user)
         {
-            var verificationToken = _tokenService.GenerateRandomToken();
+            var verificationToken = _tokenService.GenerateEmailToken(user);
 
-            string subject = "Account confirmation";
-            string body = $"http://localhost:5062/verify?token={verificationToken}";
+            const string subject = "Account confirmation";
+            string body = $"http://localhost:5062/api/account/verify?token={verificationToken}";
 
             await _cacheService.Set(verificationToken, user.Id);
 

@@ -44,7 +44,28 @@ namespace AuthService.Application.Services
             return tokenValue;
         }
 
-        public string GenerateRandomToken()
+        public string GenerateEmailToken(User user)
+        {
+            Claim[] claims =
+            [
+                new("userId", user.Id.ToString()),
+                new(ClaimTypes.Email, user.Email),
+            ];
+            
+            var signingCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),
+                SecurityAlgorithms.HmacSha256
+            );
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                signingCredentials: signingCredentials,
+                expires: DateTime.UtcNow.AddMinutes(5));
+            
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
 
@@ -54,23 +75,24 @@ namespace AuthService.Application.Services
             return Convert.ToBase64String(randomNumber);
         }
 
+        public async Task<TokenValidationResult> Validate(string token)
+        {
+            var validationParams = GetValidationParameters();
+            var handler = new JwtSecurityTokenHandler();
+            
+            return await handler.ValidateTokenAsync(token, validationParams);
+        }
+
         public async Task<ClaimsIdentity> GetClaimsIdentity(string token)
         {
-            var tokenValidationParameters = GetValidationParameters();
+            var validationResult = await Validate(token);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var tokenValidationResult = await tokenHandler.ValidateTokenAsync(
-                token,
-                tokenValidationParameters
-            );
-
-            if (!tokenValidationResult.IsValid)
+            if (!validationResult.IsValid)
             {
                 throw new SecurityTokenException("Invalid token");
             }
 
-            return tokenValidationResult.ClaimsIdentity;
+            return validationResult.ClaimsIdentity;
         }
 
         public TokenInfoDTO? ReadToken(HttpContext context)
@@ -100,7 +122,8 @@ namespace AuthService.Application.Services
             {
                 ValidateIssuer = false,
                 ValidateAudience = false,
-                ValidateLifetime = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(_options.SecretKey)
