@@ -27,7 +27,7 @@ namespace AuthService.Application.Services
         {
             var result = await _userServiceClient.CreateUser(request);
 
-            await SendVerification(result);
+            /*await SendVerification(result);*/
 
             return result;
         }

@@ -7,4 +7,5 @@ public interface IAccountService
 {
     Task<User> GetSelf(string token);
     Task ConfirmEmail(string token);
+    Task ResetPassword(string token, ResetPasswordDto data);
 }

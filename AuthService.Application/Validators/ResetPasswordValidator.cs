@@ -7,12 +7,12 @@ public class ResetPasswordValidator : AbstractValidator<ResetPasswordDto>
 {
     public ResetPasswordValidator()
     {
-        RuleFor(x => x.NewPassword).NotEmpty().WithMessage("Password cannot be empty");
+        RuleFor(x => x.NewPassword)
+            .NotEmpty().WithMessage("Password cannot be empty")
+            .Equal(x => x.CofirmNewPassword).WithMessage("Passwords do not match");
 
         RuleFor(x => x.CofirmNewPassword)
             .NotEmpty()
-            .WithMessage("Password cannot be empty")
-            .Equal(x => x.NewPassword)
-            .WithMessage("Passwords do not match");
+            .WithMessage("Password cannot be empty");
     }
 }

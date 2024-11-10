@@ -24,7 +24,7 @@ namespace AuthService.API.Controllers
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken()
         {
-            var request = _tokenService.ReadToken(HttpContext);
+            var request = _cookiesService.ReadToken(HttpContext);
             var (tokenData, status) = await _identityService.RefreshTokenAsync(request);
 
             if (status.IsError)

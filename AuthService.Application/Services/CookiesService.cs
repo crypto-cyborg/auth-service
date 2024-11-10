@@ -1,4 +1,7 @@
 ﻿using AuthService.Application.Data;
+using AuthService.Application.Data.Dtos;
+using AuthService.Application.Services.Interfaces;
+using AuthService.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
@@ -22,4 +25,22 @@ public class CookiesService : ICookiesService
         context.Response.Cookies.Append(cookieKey, data.AccessToken);
         context.Response.Cookies.Append($"refresh-{cookieKey}", data.RefreshToken);
     }
+
+    public TokenInfoDTO? ReadToken(HttpContext context)
+    {
+        var name =
+            _configuration.GetSection("cookie-name").Value
+            ?? throw new AuthServiceExceptions(
+                "Cookies configuration not found",
+                AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION
+            );
+
+        var data = new TokenInfoDTO(
+            context.Request.Cookies[name] ?? throw new Exception("Cookie config not found"),
+            context.Request.Cookies[$"refresh-{name}"]
+            ?? throw new Exception("Cookie config not found"));
+
+        return data;
+    }
+
 }
