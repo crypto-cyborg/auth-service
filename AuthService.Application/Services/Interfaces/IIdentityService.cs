@@ -9,4 +9,5 @@ public interface IIdentityService
     Task<User> SignUp(SignUpDTO request);
     Task<(TokenData? tokenData, Status status)> SignIn(string username, string password);
     Task<(TokenData? tokenData, Status status)> RefreshTokenAsync(TokenInfoDTO data);
+    Task SignOut(TokenInfoDTO tokens);
 }

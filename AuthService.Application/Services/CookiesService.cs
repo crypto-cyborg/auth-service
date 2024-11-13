@@ -42,5 +42,16 @@ public class CookiesService : ICookiesService
 
         return data;
     }
+    public void DeleteToken(HttpContext context)
+    {
+        var name =
+            _configuration.GetSection("cookie-name").Value
+            ?? throw new AuthServiceExceptions(
+                "Cookies configuration not found",
+                AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION
+            );
 
+        context.Response.Cookies.Delete(name);
+        context.Response.Cookies.Delete($"refresh-{name}");
+    }
 }

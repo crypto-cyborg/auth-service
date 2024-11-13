@@ -1,6 +1,4 @@
-﻿using AuthService.Application;
-using AuthService.Application.Data.Dtos;
-using AuthService.Application.Interfaces;
+﻿using AuthService.Application.Data.Dtos;
 using AuthService.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,34 +8,27 @@ namespace AuthService.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController(
-        IConfiguration configuration,
         ICookiesService cookiesService,
-        IIdentityService identityService,
-        ITokenService tokenService
+        IIdentityService identityService
     ) : ControllerBase
     {
-        private readonly IIdentityService _identityService = identityService;
-        private readonly IConfiguration _configuration = configuration;
-        private readonly ICookiesService _cookiesService = cookiesService;
-        private readonly ITokenService _tokenService = tokenService;
-
-        [HttpPost("RefreshToken")]
+        [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
-            var request = _cookiesService.ReadToken(HttpContext);
-            var (tokenData, status) = await _identityService.RefreshTokenAsync(request);
+            var request = cookiesService.ReadToken(HttpContext);
+            var (tokenData, status) = await identityService.RefreshTokenAsync(request);
 
             if (status.IsError)
             {
                 return BadRequest(status);
             }
 
-            _cookiesService.WriteToken(tokenData!, HttpContext);
+            cookiesService.WriteToken(tokenData!, HttpContext);
 
             return Ok(tokenData);
         }
 
-        [HttpPost("signup")]
+        [HttpPost("sign-up")]
         public async Task<IActionResult> SignUp([FromBody] SignUpDTO request)
         {
             if (!ModelState.IsValid)
@@ -45,12 +36,12 @@ namespace AuthService.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _identityService.SignUp(request);
+            var response = await identityService.SignUp(request);
 
             return Created(nameof(SignUp), response);
         }
 
-        [HttpPost("signin")]
+        [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn([FromBody] SignInDTO request)
         {
             if (!ModelState.IsValid)
@@ -58,7 +49,7 @@ namespace AuthService.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var (tokenData, status) = await _identityService.SignIn(
+            var (tokenData, status) = await identityService.SignIn(
                 request.Username,
                 request.Password
             );
@@ -68,9 +59,21 @@ namespace AuthService.API.Controllers
                 return BadRequest(status);
             }
 
-            _cookiesService.WriteToken(tokenData!, HttpContext);
+            cookiesService.WriteToken(tokenData!, HttpContext);
 
             return Ok(status);
+        }
+
+        [Authorize]
+        [HttpPost("sign-out")]
+        public new async Task<IActionResult> SignOut()
+        {
+            var tokens = cookiesService.ReadToken(HttpContext);
+
+            await identityService.SignOut(tokens!);
+            cookiesService.DeleteToken(HttpContext);
+
+            return NoContent();
         }
 
         [HttpPost("check")]

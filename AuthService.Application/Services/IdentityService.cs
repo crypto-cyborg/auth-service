@@ -61,12 +61,11 @@ namespace AuthService.Application.Services
             await _userServiceClient.UpdateUser(user);
 
             return (
-                new()
-                {
-                    AccessToken = accesstoken,
-                    RefreshToken = refreshToken,
-                    RefreshTokenExpired = refreshTokenExpires,
-                },
+                new(
+                    accesstoken,
+                    refreshToken,
+                    refreshTokenExpires
+                   ),
                 StatusFactory.Create(200, "Sign in successful", false)
             );
         }
@@ -79,7 +78,7 @@ namespace AuthService.Application.Services
 
             var principal = await _tokenService.GetClaimsIdentity(data.AccessToken);
 
-            var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")!.Value;
             var user = await _userServiceClient.GetUser(new Guid(userId));
 
             if (
@@ -101,14 +100,26 @@ namespace AuthService.Application.Services
             await _userServiceClient.UpdateUser(user);
 
             return (
-                new()
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                    RefreshTokenExpired = expiryTime,
-                },
+                new TokenData(
+                    accessToken,
+                    refreshToken,
+                    expiryTime
+                   ),
                 StatusFactory.Create(200, "Refreshed successfully", false)
             );
+        }
+
+        public async Task SignOut(TokenInfoDTO tokens)
+        {
+            var claimsIdentity = await _tokenService.GetClaimsIdentity(tokens.AccessToken);
+            var userId = new Guid(claimsIdentity.Claims.First(c => c.Type == "userId").Value);
+
+            var user = await _userServiceClient.GetUser(userId);
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.Now;
+            
+            await _userServiceClient.UpdateUser(user);
         }
 
         private async Task SendVerification(User user)

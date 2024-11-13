@@ -8,4 +8,5 @@ public interface ICookiesService
 {
     void WriteToken(TokenData data, HttpContext context);
     TokenInfoDTO? ReadToken(HttpContext context);
+    void DeleteToken(HttpContext context);
 }
