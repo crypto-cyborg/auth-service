@@ -19,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine($"--> Current environment: {builder.Environment.EnvironmentName}");
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddCors(opts =>
     opts.AddDefaultPolicy(policyBuilder => 
         policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));

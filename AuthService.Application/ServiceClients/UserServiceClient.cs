@@ -1,9 +1,7 @@
 ﻿using System.Net.Http.Json;
-using System.Runtime.Serialization;
 using AuthService.Application.Data.Dtos;
 using AuthService.Core.Exceptions;
 using AuthService.Core.Models;
-using AuthService.Persistence.Extensions;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -14,13 +12,11 @@ namespace AuthService.Application.ServiceClients
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
-        public UserServiceClient(IConfiguration configuration)
+        public UserServiceClient(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
-            _httpClient = new()
-            {
-                BaseAddress = new(_configuration.GetSection("Services")["UserService"]),
-            };
+            _httpClient = httpClientFactory.CreateClient();
+            _httpClient.BaseAddress = new(_configuration["Services:UserService"]);
         }
 
         public async Task<User> GetUser(Guid id)
@@ -59,10 +55,7 @@ namespace AuthService.Application.ServiceClients
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception(
-                    $"Request failed with status code {response.StatusCode}. {nameof(GetUserId)}. Response: {errorContent}"
-                );
+                throw new Exception(await response.Content.ReadAsStringAsync());
             }
 
             var dataStream = await response.Content.ReadAsStringAsync();
@@ -107,13 +100,9 @@ namespace AuthService.Application.ServiceClients
             var body = JsonContent.Create(request);
             var response = await _httpClient.PatchAsync($"users/{request.Id}", body);
 
-            System.Console.WriteLine(body.Value);
-
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(
-                    $"Failed to update refresh token for user with ID {request.Id}. Status code: {response.StatusCode}"
-                );
+                throw new Exception(await response.Content.ReadAsStringAsync());
             }
 
             var dataString = await response.Content.ReadAsStringAsync();

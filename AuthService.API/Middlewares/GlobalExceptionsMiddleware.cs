@@ -12,18 +12,22 @@ public class GlobalExceptionsMiddleware : IMiddleware
         {
             await next(context);
         }
-        catch (AuthServiceExceptions ex)
-        {
-            await HandleException(context, ex);
-        }
         catch (Exception ex)
         {
             await HandleException(context, ex);
         }
     }
 
+    private record Response(string Message, int code);
+
     private Task HandleException(HttpContext context, Exception ex)
     {
+        if (JsonConvert.DeserializeObject<Response>(ex.Message) is Response)
+        {
+            context.Response.ContentType = "application/json; charset=utf-8";
+            return context.Response.WriteAsync(ex.Message);
+        }
+
         var code = HttpStatusCode.InternalServerError;
 
         if (ex is AuthServiceExceptions authEx)
@@ -38,8 +42,8 @@ public class GlobalExceptionsMiddleware : IMiddleware
             };
         }
 
-        var result = JsonConvert.SerializeObject(new { ex.Message, code });
-        context.Response.ContentType = "application/json";
+        var result = JsonConvert.SerializeObject(new { ex, code });
+        context.Response.ContentType = "application/json; charset=utf-8";
         context.Response.StatusCode = (int)code;
 
         return context.Response.WriteAsync(result);
