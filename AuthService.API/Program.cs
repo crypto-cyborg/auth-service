@@ -12,6 +12,7 @@ using AuthService.Application.Validators;
 using AuthService.Persistence;
 using FluentValidation;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.IdentityModel.Protocols.Configuration;
 
 Console.WriteLine("--> Application started");
 
@@ -19,10 +20,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine($"--> Current environment: {builder.Environment.EnvironmentName}");
 
-builder.Services.AddHttpClient();
-
 builder.Services.AddCors(opts =>
-    opts.AddDefaultPolicy(policyBuilder => 
+    opts.AddDefaultPolicy(policyBuilder =>
         policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 builder.Services.AddControllers();
@@ -49,6 +48,12 @@ builder.Services.AddScoped<InternalCacheService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<UserServiceClient>();
+builder.Services.AddHttpClient<UserServiceClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:UserService"]
+        ?? throw new InvalidConfigurationException("Missing userService config"));
+});
+
 
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();

@@ -2,30 +2,19 @@
 using AuthService.Application.Data.Dtos;
 using AuthService.Core.Exceptions;
 using AuthService.Core.Models;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace AuthService.Application.ServiceClients
 {
-    public class UserServiceClient
+    public class UserServiceClient(HttpClient httpClient)
     {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
-
-        public UserServiceClient(IConfiguration configuration, IHttpClientFactory httpClientFactory)
-        {
-            _configuration = configuration;
-            _httpClient = httpClientFactory.CreateClient();
-            _httpClient.BaseAddress = new(_configuration["Services:UserService"]);
-        }
-
         public async Task<User> GetUser(Guid id)
         {
-            var response = await _httpClient.GetAsync($"users/{id}");
+            var response = await httpClient.GetAsync($"users/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Cannot proceed request. {nameof(GetUser)}");
+                throw new Exception(await response.Content.ReadAsStringAsync());
             }
 
             var dataStream = await response.Content.ReadAsStringAsync();
@@ -49,9 +38,7 @@ namespace AuthService.Application.ServiceClients
 
         private async Task<Guid?> GetUserId(string username)
         {
-            var response = await _httpClient.GetAsync($"users/{username}/exists");
-
-            Console.WriteLine(_httpClient.BaseAddress);
+            var response = await httpClient.GetAsync($"users/{username}/exists");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -77,7 +64,7 @@ namespace AuthService.Application.ServiceClients
         public async Task<User> CreateUser(SignUpDTO request)
         {
             var body = JsonContent.Create(request);
-            var response = await _httpClient.PostAsync("users", body);
+            var response = await httpClient.PostAsync("users", body);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -98,7 +85,7 @@ namespace AuthService.Application.ServiceClients
         public async Task<User> UpdateUser(User request)
         {
             var body = JsonContent.Create(request);
-            var response = await _httpClient.PatchAsync($"users/{request.Id}", body);
+            var response = await httpClient.PatchAsync($"users/{request.Id}", body);
 
             if (!response.IsSuccessStatusCode)
             {
