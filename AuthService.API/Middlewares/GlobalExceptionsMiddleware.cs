@@ -22,11 +22,15 @@ public class GlobalExceptionsMiddleware : IMiddleware
 
     private Task HandleException(HttpContext context, Exception ex)
     {
-        if (JsonConvert.DeserializeObject<Response>(ex.Message) is Response)
+        try
         {
-            context.Response.ContentType = "application/json; charset=utf-8";
-            return context.Response.WriteAsync(ex.Message);
+            if (JsonConvert.DeserializeObject<Response>(ex.Message) is Response)
+            {
+                context.Response.ContentType = "application/json; charset=utf-8";
+                return context.Response.WriteAsync(ex.Message);
+            }
         }
+        catch { }
 
         var code = HttpStatusCode.InternalServerError;
 

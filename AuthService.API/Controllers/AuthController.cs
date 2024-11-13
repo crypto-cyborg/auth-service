@@ -12,6 +12,7 @@ namespace AuthService.API.Controllers
         IIdentityService identityService
     ) : ControllerBase
     {
+        [Authorize]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -25,7 +26,7 @@ namespace AuthService.API.Controllers
 
             cookiesService.WriteToken(tokenData!, HttpContext);
 
-            return Ok(tokenData);
+            return Ok(status);
         }
 
         [HttpPost("sign-up")]

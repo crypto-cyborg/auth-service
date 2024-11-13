@@ -127,7 +127,7 @@ namespace AuthService.Application.Services
             var verificationToken = _tokenService.GenerateEmailToken(user);
 
             const string subject = "Account confirmation";
-            string body = $"http://localhost:5062/api/account/verify?token={verificationToken}";
+            var body = $"http://localhost:5062/api/account/verify?token={verificationToken}";
 
             await _cacheService.Set(verificationToken, user.Id);
 
