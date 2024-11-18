@@ -2,7 +2,7 @@
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services.Interfaces;
 using AuthService.Application.Validators;
-using AuthService.Persistence.Extensions;
+using AuthService.Core.Factories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +31,7 @@ namespace AuthService.API.Controllers
         public async Task<IActionResult> ConfirmEmail(string token)
         {
             var validationResult = await tokenService.Validate(token: token, lifetime: true);
-
+            
             if (!validationResult.IsValid)
             {
                 return BadRequest(StatusFactory.Create(500, "Invalid token", true));
@@ -43,7 +43,6 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("reset-password")]
-        [Authorize]
         public async Task<IActionResult> ResetPassword(ResetPasswordValidator validator, ResetPasswordDto request)
         {
             var validationResult = validator.Validate(request);

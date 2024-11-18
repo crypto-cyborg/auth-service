@@ -12,7 +12,6 @@ namespace AuthService.API.Controllers
         IIdentityService identityService
     ) : ControllerBase
     {
-        [Authorize]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -77,8 +76,8 @@ namespace AuthService.API.Controllers
             return NoContent();
         }
 
-        [HttpPost("check")]
-        [Authorize]
+        [HttpGet("check")]
+        [Authorize(Roles = "AppAdmin")]
         public IActionResult Check()
         {
             return Ok("Authorized");

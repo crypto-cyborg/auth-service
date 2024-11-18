@@ -4,8 +4,8 @@ using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services.Interfaces;
+using AuthService.Core.Factories;
 using AuthService.Core.Models;
-using AuthService.Persistence.Extensions;
 
 namespace AuthService.Application.Services
 {
@@ -39,7 +39,7 @@ namespace AuthService.Application.Services
         {
             var user = await _userServiceClient.GetUser(username);
 
-            if (user == null)
+            if (user is null)
             {
                 return (null, StatusFactory.Create(404, "User not found", true));
             }
@@ -51,7 +51,7 @@ namespace AuthService.Application.Services
                 return (null, StatusFactory.Create(401, "Invalid username or password", true));
             }
 
-            var accesstoken = await _tokenService.Generate(user);
+            var accessToken = await _tokenService.Generate(user);
             var refreshToken = _tokenService.GenerateRefreshToken();
             var refreshTokenExpires = DateTime.UtcNow.AddDays(1);
 
@@ -62,7 +62,7 @@ namespace AuthService.Application.Services
 
             return (
                 new(
-                    accesstoken,
+                    accessToken,
                     refreshToken,
                     refreshTokenExpires
                    ),

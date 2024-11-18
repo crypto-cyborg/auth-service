@@ -7,6 +7,7 @@ using AuthService.Application.Interfaces;
 using AuthService.Core.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NRedisStack;
 
 namespace AuthService.Application.Services
 {
@@ -17,12 +18,13 @@ namespace AuthService.Application.Services
 
         public async Task<string> Generate(User user)
         {
-            Claim[] claims =
+            List<Claim> claims =
             [
                 new("userId", user.Id.ToString()),
                 new(ClaimTypes.NameIdentifier, user.Username),
-                new(ClaimTypes.Role, string.Join(",", user.UserRoles)),
             ];
+            
+            claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
 
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),

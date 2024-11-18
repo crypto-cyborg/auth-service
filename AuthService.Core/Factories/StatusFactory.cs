@@ -1,7 +1,6 @@
-using System;
 using AuthService.Core.Models;
 
-namespace AuthService.Persistence.Extensions;
+namespace AuthService.Core.Factories;
 
 public static class StatusFactory
 {

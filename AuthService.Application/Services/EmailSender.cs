@@ -24,7 +24,7 @@ namespace AuthService.Application.Services
         {
             _originEmail = _configuration.GetSection("smtp")["originEmail"];
             _password = _configuration.GetSection("smtp")["password"];
-            _smtpAdress = _configuration.GetSection("smtp")["adress"];
+            _smtpAdress = _configuration.GetSection("smtp")["address"];
             var portString = _configuration.GetSection("smtp")["port"];
 
             var isPortParsed = int.TryParse(portString, out _port);
