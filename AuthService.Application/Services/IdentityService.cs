@@ -27,7 +27,7 @@ namespace AuthService.Application.Services
         {
             var result = await _userServiceClient.CreateUser(request);
 
-            /*await SendVerification(result);*/
+            await SendVerification(result);
 
             return result;
         }
@@ -65,7 +65,7 @@ namespace AuthService.Application.Services
                     accessToken,
                     refreshToken,
                     refreshTokenExpires
-                   ),
+                ),
                 StatusFactory.Create(200, "Sign in successful", false)
             );
         }
@@ -104,7 +104,7 @@ namespace AuthService.Application.Services
                     accessToken,
                     refreshToken,
                     expiryTime
-                   ),
+                ),
                 StatusFactory.Create(200, "Refreshed successfully", false)
             );
         }
@@ -118,7 +118,7 @@ namespace AuthService.Application.Services
 
             user.RefreshToken = null;
             user.RefreshTokenExpiryTime = DateTime.Now;
-            
+
             await _userServiceClient.UpdateUser(user);
         }
 
@@ -127,7 +127,8 @@ namespace AuthService.Application.Services
             var verificationToken = _tokenService.GenerateEmailToken(user);
 
             const string subject = "Account confirmation";
-            var body = $"http://localhost:5062/api/account/verify?token={verificationToken}";
+            var body = _emailSender.GetPrettyConfirmation(
+                $"http://localhost:5062/api/account/verify?token={verificationToken}");
 
             await _cacheService.Set(verificationToken, user.Id);
 
