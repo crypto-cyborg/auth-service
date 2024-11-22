@@ -13,7 +13,8 @@ namespace AuthService.API.Controllers
     public class AccountController(
         IAccountService accountService,
         ITokenService tokenService,
-        ICookiesService cookiesService)
+        ICookiesService cookiesService,
+        IBlobService blobService)
         : ControllerBase
     {
         [HttpGet]
@@ -42,7 +43,7 @@ namespace AuthService.API.Controllers
             return NoContent();
         }
 
-        [HttpPost("reset-password")]
+        [HttpPost("password/reset")]
         public async Task<IActionResult> ResetPassword(ResetPasswordValidator validator, ResetPasswordDto request)
         {
             var validationResult = validator.Validate(request);
@@ -56,6 +57,19 @@ namespace AuthService.API.Controllers
             await accountService.ResetPassword(tokenData!.AccessToken, request);
 
             return NoContent();
+        }
+
+        [HttpPost("image")]
+        public async Task<IActionResult> UploadAccountImage(IFormFile image)
+        {
+            if (image.Length == 0)
+            {
+                return BadRequest("Uploaded file is invalid");
+            }
+
+            var url = await blobService.UploadImage(image);
+
+            return Ok(url);
         }
     }
 }
