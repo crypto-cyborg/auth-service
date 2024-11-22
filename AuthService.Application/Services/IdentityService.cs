@@ -4,6 +4,7 @@ using AuthService.Application.Infrastructure.Interfaces;
 using AuthService.Application.Interfaces;
 using AuthService.Application.ServiceClients;
 using AuthService.Application.Services.Interfaces;
+using AuthService.Core.Exceptions;
 using AuthService.Core.Factories;
 using AuthService.Core.Models;
 
@@ -14,18 +15,20 @@ namespace AuthService.Application.Services
         ITokenService tokenService,
         IEmailSender emailSender,
         UserServiceClient userServiceClient,
-        InternalCacheService cacheService
+        InternalCacheService cacheService,
+        IBinanceService binanceService
     ) : IIdentityService
     {
-        private readonly IPasswordHasher _passwordHasher = passwordHasher;
-        private readonly ITokenService _tokenService = tokenService;
-        private readonly InternalCacheService _cacheService = cacheService;
-        private readonly IEmailSender _emailSender = emailSender;
-        private readonly UserServiceClient _userServiceClient = userServiceClient;
-
         public async Task<User> SignUp(SignUpDTO request)
         {
-            var result = await _userServiceClient.CreateUser(request);
+            var keyValidationResult = await binanceService.ValidateKeys(request.ApiKey, request.SecretKey);
+
+            if (!keyValidationResult)
+            {
+                throw new AuthServiceExceptions("Invalid binance keys", AuthServiceExceptionTypes.INVALID_KEYS);
+            }
+            
+            var result = await userServiceClient.CreateUser(request);
 
             await SendVerification(result);
 
@@ -37,28 +40,28 @@ namespace AuthService.Application.Services
             string password
         )
         {
-            var user = await _userServiceClient.GetUser(username);
+            var user = await userServiceClient.GetUser(username);
 
             if (user is null)
             {
                 return (null, StatusFactory.Create(404, "User not found", true));
             }
 
-            var isPasswordValid = _passwordHasher.Verify(password, user.PasswordHash);
+            var isPasswordValid = passwordHasher.Verify(password, user.PasswordHash);
 
             if (!isPasswordValid)
             {
                 return (null, StatusFactory.Create(401, "Invalid username or password", true));
             }
 
-            var accessToken = await _tokenService.Generate(user);
-            var refreshToken = _tokenService.GenerateRefreshToken();
+            var accessToken = await tokenService.Generate(user);
+            var refreshToken = tokenService.GenerateRefreshToken();
             var refreshTokenExpires = DateTime.UtcNow.AddDays(1);
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = refreshTokenExpires;
 
-            await _userServiceClient.UpdateUser(user);
+            await userServiceClient.UpdateUser(user);
 
             return (
                 new(
@@ -76,10 +79,10 @@ namespace AuthService.Application.Services
         {
             ArgumentNullException.ThrowIfNull(data);
 
-            var principal = await _tokenService.GetClaimsIdentity(data.AccessToken);
+            var principal = await tokenService.GetClaimsIdentity(data.AccessToken);
 
             var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")!.Value;
-            var user = await _userServiceClient.GetUser(new Guid(userId));
+            var user = await userServiceClient.GetUser(new Guid(userId));
 
             if (
                 user is null
@@ -90,14 +93,14 @@ namespace AuthService.Application.Services
                 return (null, StatusFactory.Create(400, "Cannot refresh token", true));
             }
 
-            var accessToken = await _tokenService.Generate(user);
-            var refreshToken = _tokenService.GenerateRefreshToken();
+            var accessToken = await tokenService.Generate(user);
+            var refreshToken = tokenService.GenerateRefreshToken();
             var expiryTime = DateTime.UtcNow.AddDays(1);
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = expiryTime;
 
-            await _userServiceClient.UpdateUser(user);
+            await userServiceClient.UpdateUser(user);
 
             return (
                 new TokenData(
@@ -111,28 +114,28 @@ namespace AuthService.Application.Services
 
         public async Task SignOut(TokenInfoDTO tokens)
         {
-            var claimsIdentity = await _tokenService.GetClaimsIdentity(tokens.AccessToken);
+            var claimsIdentity = await tokenService.GetClaimsIdentity(tokens.AccessToken);
             var userId = new Guid(claimsIdentity.Claims.First(c => c.Type == "userId").Value);
 
-            var user = await _userServiceClient.GetUser(userId);
+            var user = await userServiceClient.GetUser(userId);
 
             user.RefreshToken = null;
             user.RefreshTokenExpiryTime = DateTime.Now;
 
-            await _userServiceClient.UpdateUser(user);
+            await userServiceClient.UpdateUser(user);
         }
 
         private async Task SendVerification(User user)
         {
-            var verificationToken = _tokenService.GenerateEmailToken(user);
+            var verificationToken = tokenService.GenerateEmailToken(user);
 
             const string subject = "Account confirmation";
-            var body = _emailSender.GetPrettyConfirmation(
+            var body = emailSender.GetPrettyConfirmation(
                 $"http://localhost:5062/api/account/verify?token={verificationToken}");
 
-            await _cacheService.Set(verificationToken, user.Id);
+            await cacheService.Set(verificationToken, user.Id);
 
-            await _emailSender.SendAsync(user.Email, subject, body);
+            await emailSender.SendAsync(user.Email, subject, body);
         }
     }
 }

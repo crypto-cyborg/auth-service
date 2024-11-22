@@ -7,4 +7,5 @@ public enum AuthServiceExceptionTypes
     USER_NOT_FOUND,
     INVALID_PASSWORD,
     IVALID_COOKIE_CONFIGURATION,
+    INVALID_KEYS,
 }
