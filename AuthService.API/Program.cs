@@ -41,7 +41,6 @@ builder.Services.AddSingleton<InternalCache<string, Guid>>();
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IBlobService, BlobService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();

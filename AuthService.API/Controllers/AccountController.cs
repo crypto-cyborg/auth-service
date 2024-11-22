@@ -13,8 +13,7 @@ namespace AuthService.API.Controllers
     public class AccountController(
         IAccountService accountService,
         ITokenService tokenService,
-        ICookiesService cookiesService,
-        IBlobService blobService)
+        ICookiesService cookiesService)
         : ControllerBase
     {
         [Authorize]
@@ -57,19 +56,6 @@ namespace AuthService.API.Controllers
             await accountService.ResetPassword(tokenData!.AccessToken, request);
 
             return NoContent();
-        }
-
-        [HttpPost("image")]
-        public async Task<IActionResult> UploadAccountImage(IFormFile image)
-        {
-            if (image.Length == 0)
-            {
-                return BadRequest("Uploaded file is invalid");
-            }
-
-            var url = await blobService.UploadImage(image);
-
-            return Ok(url);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Contracts;
+using System.Diagnostics.Contracts;
 using System.Security.Cryptography;
 using System.Text;
 using AuthService.Application.Services.Interfaces;
