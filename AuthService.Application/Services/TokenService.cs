@@ -7,7 +7,6 @@ using AuthService.Application.Interfaces;
 using AuthService.Core.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NRedisStack;
 
 namespace AuthService.Application.Services
 {
@@ -99,7 +98,7 @@ namespace AuthService.Application.Services
             {
                 ValidateIssuer = false,
                 ValidateAudience = false,
-                ValidateLifetime = false,
+                ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(

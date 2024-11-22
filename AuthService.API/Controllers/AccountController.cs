@@ -17,8 +17,8 @@ namespace AuthService.API.Controllers
         IBlobService blobService)
         : ControllerBase
     {
-        [HttpGet]
         [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Authorize()
         {
             var tokenData = cookiesService.ReadToken(HttpContext);
@@ -46,7 +46,7 @@ namespace AuthService.API.Controllers
         [HttpPost("password/reset")]
         public async Task<IActionResult> ResetPassword(ResetPasswordValidator validator, ResetPasswordDto request)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = await validator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
                 return BadRequest(validationResult);

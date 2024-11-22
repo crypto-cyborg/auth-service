@@ -12,7 +12,7 @@ namespace AuthService.API.Controllers
         IIdentityService identityService
     ) : ControllerBase
     {
-        [HttpPost("refresh-token")]
+        [HttpPost("token/refresh")]
         public async Task<IActionResult> RefreshToken()
         {
             var request = cookiesService.ReadToken(HttpContext);
@@ -77,10 +77,10 @@ namespace AuthService.API.Controllers
         }
 
         [HttpGet("check")]
-        [Authorize(Roles = "AppAdmin")]
+        [Authorize]
         public IActionResult Check()
         {
-            return Ok("Authorized");
+            return Ok("This works");
         }
     }
 }

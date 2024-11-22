@@ -22,23 +22,26 @@ Console.WriteLine($"--> Current environment: {builder.Environment.EnvironmentNam
 
 builder.Services.AddCors(opts =>
     opts.AddDefaultPolicy(policyBuilder =>
-        policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+        policyBuilder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<GlobalExceptionsMiddleware>();
 
-builder.Services.AddSingleton<InternalCache<string, Guid>>();
-
-builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+builder.Services.AddApiAuthentication(builder.Configuration);
+
+builder.Services.AddSingleton<InternalCache<string, Guid>>();
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IBlobService, BlobService>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -51,9 +54,15 @@ builder.Services.AddScoped<UserServiceClient>();
 builder.Services.AddHttpClient<UserServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:UserService"]
-        ?? throw new InvalidConfigurationException("Missing userService config"));
+                                 ?? throw new InvalidConfigurationException("Missing userService config"));
 });
 
+builder.Services.AddScoped<IBinanceService, BinanceService>();
+builder.Services.AddHttpClient<IBinanceService, BinanceService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Binance:BaseUrl"]
+                                 ?? throw new InvalidConfigurationException("Missing Binance config"));
+});
 
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInValidator>();
@@ -67,9 +76,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
-
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseMiddleware<GlobalExceptionsMiddleware>();
 

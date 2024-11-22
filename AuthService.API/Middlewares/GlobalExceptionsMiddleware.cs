@@ -42,6 +42,7 @@ public class GlobalExceptionsMiddleware : IMiddleware
                 AuthServiceExceptionTypes.DESEREALIZATION_ERROR => HttpStatusCode.BadRequest,
                 AuthServiceExceptionTypes.USER_NOT_FOUND => HttpStatusCode.NotFound,
                 AuthServiceExceptionTypes.INVALID_PASSWORD => HttpStatusCode.Forbidden,
+                AuthServiceExceptionTypes.INVALID_KEYS => HttpStatusCode.Forbidden,
                 _ => HttpStatusCode.InternalServerError
             };
         }
