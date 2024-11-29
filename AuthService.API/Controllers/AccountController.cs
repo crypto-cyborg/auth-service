@@ -2,6 +2,7 @@
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services.Interfaces;
 using AuthService.Application.Validators;
+using AuthService.Core.Extesions;
 using AuthService.Core.Factories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace AuthService.API.Controllers
 
             var user = await accountService.GetSelf(tokenData!.AccessToken);
 
-            return Ok(user);
+            return Ok(user.MapToResponse());
         }
 
         [HttpGet("verify")]
