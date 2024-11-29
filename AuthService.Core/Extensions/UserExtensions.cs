@@ -7,7 +7,7 @@ public static class UserExtensions
     public record UserReadDto(
             Guid Id,
             string Username,
-            string ImageUrl,
+            string? ImageUrl,
             string Email,
             bool IsEmailConfirmed,
             string ApiKey,
@@ -16,7 +16,8 @@ public static class UserExtensions
             );
 
     public static UserReadDto MapToResponse(this User user)
-        => new(user.Username,
+        => new(user.Id,
+                user.Username,
                 user.ImageUrl,
                 user.Email,
                 user.IsEmailConfirmed,
