@@ -5,6 +5,7 @@ namespace AuthService.Core.Extesions;
 public static class UserExtensions
 {
     public record UserReadDto(
+            Guid Id,
             string Username,
             string ImageUrl,
             string Email,
