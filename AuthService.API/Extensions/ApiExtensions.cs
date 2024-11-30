@@ -45,12 +45,6 @@ namespace AuthService.API.Extensions
 
                                 return Task.CompletedTask;
                             },
-                            OnAuthenticationFailed = context =>
-                            {
-                                Console.WriteLine(context.Request.Cookies[configuration["cookie-name"]!]);
-
-                                return Task.CompletedTask;
-                            }
                         };
                     }
                 );

@@ -12,8 +12,8 @@ public static class UserExtensions
             bool IsEmailConfirmed,
             string ApiKey,
             string FirstName,
-            string LastName
-            );
+            string LastName,
+            IEnumerable<RoleExtensions.RoleReadDto> Roles);
 
     public static UserReadDto MapToResponse(this User user)
         => new(user.Id,
@@ -23,5 +23,6 @@ public static class UserExtensions
                 user.IsEmailConfirmed,
                 user.ApiKey,
                 user.FirstName,
-                user.LastName);
+                user.LastName,
+                user.Roles.MapToResponse());
 }
