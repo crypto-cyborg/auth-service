@@ -42,6 +42,7 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("sign-in")]
+        [AllowAnonymous]
         public async Task<IActionResult> SignIn([FromBody] SignInDTO request)
         {
             if (!ModelState.IsValid)

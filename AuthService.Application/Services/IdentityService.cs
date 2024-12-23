@@ -85,9 +85,8 @@ namespace AuthService.Application.Services
             var user = await userServiceClient.GetUser(new Guid(userId));
 
             if (
-                user is null
-                || user.RefreshToken != data.RefreshToken
-                || user.RefreshTokenExpiryTime < DateTime.Now
+                user.RefreshToken != data.RefreshToken
+                || user.RefreshTokenExpiryTime < DateTime.UtcNow
             )
             {
                 return (null, StatusFactory.Create(400, "Cannot refresh token", true));

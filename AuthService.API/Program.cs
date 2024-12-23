@@ -79,7 +79,7 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
-app.UseMiddleware<GlobalExceptionsMiddleware>();
+// app.UseMiddleware<GlobalExceptionsMiddleware>();
 
 app.UseCookiePolicy(
     new CookiePolicyOptions

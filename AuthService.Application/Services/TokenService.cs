@@ -33,7 +33,7 @@ namespace AuthService.Application.Services
             var token = new JwtSecurityToken(
                 claims: claims,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes)
+                expires: DateTime.UtcNow.AddSeconds(15)
             );
 
             var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
