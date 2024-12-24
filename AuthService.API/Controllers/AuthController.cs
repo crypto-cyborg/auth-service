@@ -13,9 +13,9 @@ namespace AuthService.API.Controllers
     ) : ControllerBase
     {
         [HttpPost("token/refresh")]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<IActionResult> RefreshToken(TokenInfoDTO? tokens)
         {
-            var request = cookiesService.ReadToken(HttpContext);
+            var request = tokens ?? cookiesService.ReadToken(HttpContext);
             var (tokenData, status) = await identityService.RefreshTokenAsync(request);
 
             if (status.IsError)
@@ -25,7 +25,7 @@ namespace AuthService.API.Controllers
 
             cookiesService.WriteToken(tokenData!, HttpContext);
 
-            return Ok(status);
+            return Ok(tokenData);
         }
 
         [HttpPost("sign-up")]
