@@ -23,7 +23,7 @@ namespace AuthService.Application.Services
                 new(ClaimTypes.NameIdentifier, user.Username),
             ];
             
-            claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
+            claims.AddRange(user.Roles.Select(role => new Claim("Role", role.Name)));
 
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),
