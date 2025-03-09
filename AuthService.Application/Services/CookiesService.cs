@@ -36,8 +36,8 @@ public class CookiesService : ICookiesService
             );
 
         var data = new TokenInfoDTO(
-            context.Request.Cookies[name] ?? throw new Exception("Cookie config not found"),
-            context.Request.Cookies[$"refresh-{name}"]
+            context.Request.Headers["accessToken"],
+            context.Request.Cookies[$"refresh-token"]
             ?? throw new Exception("Cookie config not found"));
 
         return data;

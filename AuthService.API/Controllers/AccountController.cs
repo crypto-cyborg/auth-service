@@ -17,7 +17,6 @@ namespace AuthService.API.Controllers
         ICookiesService cookiesService)
         : ControllerBase
     {
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Authorize()
         {

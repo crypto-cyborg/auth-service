@@ -42,7 +42,6 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("sign-in")]
-        [AllowAnonymous]
         public async Task<IActionResult> SignIn([FromBody] SignInDTO request)
         {
             if (!ModelState.IsValid)
@@ -65,7 +64,6 @@ namespace AuthService.API.Controllers
             return Ok(status);
         }
 
-        [Authorize]
         [HttpPost("sign-out")]
         public new async Task<IActionResult> SignOut()
         {
