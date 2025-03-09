@@ -85,9 +85,9 @@ app.UseCors();
 app.UseCookiePolicy(
     new CookiePolicyOptions
     {
-        MinimumSameSitePolicy = SameSiteMode.Strict,
-        HttpOnly = HttpOnlyPolicy.Always,
-        Secure = CookieSecurePolicy.Always,
+        MinimumSameSitePolicy = SameSiteMode.None,
+        HttpOnly = HttpOnlyPolicy.None,
+        Secure = CookieSecurePolicy.None,
     }
 );
 
