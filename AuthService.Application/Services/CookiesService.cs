@@ -3,55 +3,40 @@ using AuthService.Application.Data.Dtos;
 using AuthService.Application.Services.Interfaces;
 using AuthService.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
-namespace AuthService.Application;
+namespace AuthService.Application.Services;
 
 public class CookiesService : ICookiesService
 {
-    private readonly IConfiguration _configuration;
+    private readonly CookiesName _cookiesName;
 
-    public CookiesService(IConfiguration configuration)
+    public CookiesService(IOptions<CookiesName> cookiesOptions)
     {
-        _configuration = configuration;
+        _cookiesName = cookiesOptions.Value;
     }
 
     public void WriteToken(TokenData data, HttpContext context)
     {
-        var cookieKey =
-            _configuration.GetSection("cookie-name").Value
-            ?? throw new Exception("Cannot find cookie key");
-
-        context.Response.Cookies.Append(cookieKey, data.AccessToken);
-        context.Response.Cookies.Append($"refresh-{cookieKey}", data.RefreshToken);
+        context.Response.Cookies.Append(_cookiesName.AccessToken, data.AccessToken);
+        context.Response.Cookies.Append(_cookiesName.RefreshToken, data.RefreshToken);
     }
 
     public TokenInfoDTO? ReadToken(HttpContext context)
     {
-        var name =
-            _configuration.GetSection("cookie-name").Value
-            ?? throw new AuthServiceExceptions(
-                "Cookies configuration not found",
-                AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION
-            );
+        var accessToken = context.Request.Cookies[_cookiesName.AccessToken];
+        var refreshToken = context.Request.Cookies[_cookiesName.RefreshToken];
 
-        var data = new TokenInfoDTO(
-            context.Request.Headers["accessToken"],
-            context.Request.Cookies[$"refresh-token"]
-            ?? throw new Exception("Cookie config not found"));
+        if (accessToken is null || refreshToken is null) return default;
+
+        var data = new TokenInfoDTO(accessToken, refreshToken);
 
         return data;
     }
+
     public void DeleteToken(HttpContext context)
     {
-        var name =
-            _configuration.GetSection("cookie-name").Value
-            ?? throw new AuthServiceExceptions(
-                "Cookies configuration not found",
-                AuthServiceExceptionTypes.IVALID_COOKIE_CONFIGURATION
-            );
-
-        context.Response.Cookies.Delete(name);
-        context.Response.Cookies.Delete($"refresh-{name}");
+        context.Response.Cookies.Delete(_cookiesName.AccessToken);
+        context.Response.Cookies.Delete(_cookiesName.RefreshToken);
     }
 }

@@ -34,6 +34,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<GlobalExceptionsMiddleware>();
 
+builder.Services.Configure<CookiesName>(builder.Configuration.GetSection(nameof(CookiesName)));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 builder.Services.AddApiAuthentication(builder.Configuration);
 

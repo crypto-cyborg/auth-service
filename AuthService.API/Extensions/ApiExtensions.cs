@@ -41,12 +41,6 @@ namespace AuthService.API.Extensions
 
                         opts.Events = new JwtBearerEvents
                         {
-                            OnMessageReceived = context =>
-                            {
-                                context.Token = context.Request.Cookies[configuration["cookie-name"]!];
-
-                                return Task.CompletedTask;
-                            },
                             OnAuthenticationFailed = async context =>
                             {
                                 if (context.Exception is not SecurityTokenExpiredException) return;

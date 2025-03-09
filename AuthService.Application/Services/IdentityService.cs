@@ -64,7 +64,7 @@ namespace AuthService.Application.Services
             await userServiceClient.UpdateUser(user);
 
             return (
-                new(
+                new TokenData(
                     accessToken,
                     refreshToken,
                     refreshTokenExpires

@@ -5,7 +5,7 @@ namespace AuthService.Application.Services.Interfaces;
 
 public interface IAccountService
 {
-    Task<User> GetSelf(string token);
+    Task<User> GetSelf(Guid id);
     Task ConfirmEmail(string token);
     Task ResetPassword(string token, ResetPasswordDto data);
 }

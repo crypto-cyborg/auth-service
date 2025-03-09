@@ -4,7 +4,6 @@ using AuthService.Application.Services.Interfaces;
 using AuthService.Application.Validators;
 using AuthService.Core.Extesions;
 using AuthService.Core.Factories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers
@@ -20,9 +19,9 @@ namespace AuthService.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Authorize()
         {
-            var tokenData = cookiesService.ReadToken(HttpContext);
+            var userId = HttpContext.Request.Headers["userId"];
 
-            var user = await accountService.GetSelf(tokenData!.AccessToken);
+            var user = await accountService.GetSelf(new Guid(userId));
 
             return Ok(user.MapToResponse());
         }

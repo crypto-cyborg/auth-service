@@ -11,11 +11,10 @@ namespace AuthService.Application.Services;
 public class AccountService(ITokenService tokenService, UserServiceClient userServiceClient)
     : IAccountService
 {
-    public async Task<User> GetSelf(string token)
+    public async Task<User> GetSelf(Guid id)
     {
-        var claimsIdentity = await tokenService.GetClaimsIdentity(token);
-        var userId = new Guid(claimsIdentity.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
-        var user = await userServiceClient.GetUser(userId);
+        Console.WriteLine(id);
+        var user = await userServiceClient.GetUser(id);
 
         return user;
     }

@@ -16,6 +16,9 @@ namespace AuthService.API.Controllers
         public async Task<IActionResult> RefreshToken(TokenInfoDTO? tokens)
         {
             var request = tokens ?? cookiesService.ReadToken(HttpContext);
+
+            if (request is null) return Unauthorized();
+            
             var (tokenData, status) = await identityService.RefreshTokenAsync(request);
 
             if (status.IsError)
