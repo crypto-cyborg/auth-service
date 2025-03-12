@@ -23,9 +23,10 @@ Console.WriteLine($"--> Current environment: {builder.Environment.EnvironmentNam
 builder.Services.AddCors(opts =>
     opts.AddDefaultPolicy(policyBuilder =>
         policyBuilder
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:5048")
             .AllowAnyMethod()
-            .AllowAnyHeader()));
+            .AllowAnyHeader()
+            .AllowCredentials()));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -36,7 +37,7 @@ builder.Services.AddScoped<GlobalExceptionsMiddleware>();
 
 builder.Services.Configure<CookiesName>(builder.Configuration.GetSection(nameof(CookiesName)));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
-builder.Services.AddApiAuthentication(builder.Configuration);
+// builder.Services.AddApiAuthentication(builder.Configuration);
 
 builder.Services.AddSingleton<InternalCache<string, Guid>>();
 
@@ -76,23 +77,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.None,
+    Secure = CookieSecurePolicy.Always,
+    HttpOnly = HttpOnlyPolicy.Always
+});
 
 app.UseCors();
 
-// app.UseMiddleware<GlobalExceptionsMiddleware>();
+app.UseMiddleware<GlobalExceptionsMiddleware>();
 
-app.UseCookiePolicy(
-    new CookiePolicyOptions
-    {
-        MinimumSameSitePolicy = SameSiteMode.None,
-        HttpOnly = HttpOnlyPolicy.None,
-        Secure = CookieSecurePolicy.None,
-    }
-);
-
-app.UseAuthentication();
-app.UseAuthorization();
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 app.MapControllers();
 
